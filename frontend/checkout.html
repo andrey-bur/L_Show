@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа | Wine & Spirits</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkout-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Прогресс оформления -->
+    <div class="checkout-progress">
+        <div class="progress-line">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <span>Корзина</span>
+            </div>
+            <div class="step active" data-step="2">
+                <div class="step-number">2</div>
+                <span>Доставка</span>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <span>Оплата</span>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <span>Подтверждение</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Шапка -->
+    <header class="checkout-header">
+        <div class="container">
+            <a href="index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                <span>Вернуться в магазин</span>
+            </a>
+            <a href="index.html" class="logo">
+                <i class="fas fa-wine-bottle"></i>
+                <span>Wine & Spirits</span>
+            </a>
+            <div class="secure-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Безопасная оплата</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="checkout-main">
+        <div class="container">
+            <div class="checkout-grid">
+                <!-- Левая колонка - форма -->
+                <div class="checkout-form">
+                    <!-- Контактные данные -->
+                    <section class="form-section" id="contactSection">
+                        <h2 class="section-title">
+                            <span class="step-icon">1</span>
+                            Контактные данные
+                        </h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="firstName">Имя *</label>
+                                <input type="text" id="firstName" placeholder="Иван" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Фамилия *</label>
+                                <input type="text" id="lastName" placeholder="Иванов" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="phone">Телефон *</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" id="phone" placeholder="+375 (44) 549-85-65" required>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="email">Email</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="email" placeholder="ivan@example.com">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Способ доставки -->
+                    <section class="form-section" id="deliverySection">
+                        <h2 class="section-title">
+                            <span class="step-icon">2</span>
+                            Способ доставки
+                        </h2>
+                        
+                        <div class="delivery-options">
+                            <label class="delivery-card active">
+                                <input type="radio" name="delivery" value="courier" checked>
+                                <div class="delivery-content">
+                                    <div class="delivery-icon">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <div class="delivery-info">
+                                        <h3>Курьерская доставка</h3>
+                                        <p>Доставим завтра</p>
+                                        <span class="delivery-price">500 ₽</span>
+                                    </div>
+                                    <div class="check-mark"><i class="fas fa-check"></i></div>
+                                </div>
+                            </label>
+
+                            <label class="delivery-card">
+                                <input type="radio" name="delivery" value="pickup">
+                                <div class="delivery-content">
+                                    <div class="delivery-icon">
+                                        <i class="fas fa-store"></i>
+                                    </div>
+                                    <div class="delivery-info">
+                                        <h3>Самовывоз из магазина</h3>
+                                        <p>Сегодня, с 10:00 до 22:00</p>
+                                        <span class="delivery-price free">Бесплатно</span>
+                                    </div>
+                                    <div class="check-mark"><i class="fas fa-check"></i></div>
+                                </div>
+                            </label>
+
+                            <label class="delivery-card">
+                                <input type="radio" name="delivery" value="express">
+                                <div class="delivery-content">
+                                    <div class="delivery-icon">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <div class="delivery-info">
+                                        <h3>Экспресс-доставка</h3>
+                                        <p>В течение 2 часов</p>
+                                        <span class="delivery-price">1 500 ₽</span>
+                                    </div>
+                                    <div class="check-mark"><i class="fas fa-check"></i></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Адрес доставки -->
+                        <div class="address-form" id="addressForm">
+                            <h3>Адрес доставки</h3>
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="city">Город *</label>
+                                    <input type="text" id="city" value="Москва" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="street">Улица *</label>
+                                    <input type="text" id="street" placeholder="Например, Тверская" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="house">Дом *</label>
+                                    <input type="text" id="house" placeholder="12" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="apartment">Квартира/Офис</label>
+                                    <input type="text" id="apartment" placeholder="45">
+                                </div>
+                                <div class="form-group">
+                                    <label for="entrance">Подъезд</label>
+                                    <input type="text" id="entrance" placeholder="2">
+                                </div>
+                                <div class="form-group">
+                                    <label for="floor">Этаж</label>
+                                    <input type="text" id="floor" placeholder="5">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="comment">Комментарий курьеру</label>
+                                    <textarea id="comment" rows="3" placeholder="Код домофона..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Пункты самовывоза -->
+                        <div class="pickup-points" id="pickupPoints" style="display: none;">
+                            <h3>Выберите пункт выдачи</h3>
+                            <div class="pickup-list">
+                                <label class="pickup-card active">
+                                    <input type="radio" name="pickup" value="1" checked>
+                                    <div class="pickup-content">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <div>
+                                            <h4>ул. Тверская, 15</h4>
+                                            <p>Ежедневно 10:00-22:00</p>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="pickup-card">
+                                    <input type="radio" name="pickup" value="2">
+                                    <div class="pickup-content">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <div>
+                                            <h4>ул. Арбат, 25</h4>
+                                            <p>Ежедневно 09:00-23:00</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Способ оплаты -->
+                    <section class="form-section" id="paymentSection">
+                        <h2 class="section-title">
+                            <span class="step-icon">3</span>
+                            Способ оплаты
+                        </h2>
+
+                        <div class="payment-options">
+                            <label class="payment-card active">
+                                <input type="radio" name="payment" value="card" checked>
+                                <div class="payment-content">
+                                    <div class="payment-icons">
+                                        <i class="fab fa-cc-visa"></i>
+                                        <i class="fab fa-cc-mastercard"></i>
+                                        <i class="fab fa-cc-mir"></i>
+                                    </div>
+                                    <div class="payment-info">
+                                        <h3>Банковская карта онлайн</h3>
+                                        <p>Visa, MasterCard, МИР</p>
+                                    </div>
+                                    <div class="check-mark"><i class="fas fa-check"></i></div>
+                                </div>
+                            </label>
+
+                            <label class="payment-card">
+                                <input type="radio" name="payment" value="cash">
+                                <div class="payment-content">
+                                    <div class="payment-icons">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="payment-info">
+                                        <h3>Наличными при получении</h3>
+                                        <p>Только для курьерской доставки</p>
+                                    </div>
+                                    <div class="check-mark"><i class="fas fa-check"></i></div>
+                                </div>
+                            </label>
+
+                            <label class="payment-card">
+                                <input type="radio" name="payment" value="sbp">
+                                <div class="payment-content">
+                                    <div class="payment-icons">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="payment-info">
+                                        <h3>СБП (Система быстрых платежей)</h3>
+                                        <p>Оплата через банковское приложение</p>
+                                    </div>
+                                    <div class="check-mark"><i class="fas fa-check"></i></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Данные карты -->
+                        <div class="card-form" id="cardForm">
+                            <div class="credit-card-preview">
+                                <div class="card-front">
+                                    <div class="card-chip"><i class="fas fa-microchip"></i></div>
+                                    <div class="card-number" id="cardNumberDisplay">•••• •••• •••• ••••</div>
+                                    <div class="card-details">
+                                        <div class="card-holder">
+                                            <span>Держатель</span>
+                                            <p id="cardHolderDisplay">IVAN IVANOV</p>
+                                        </div>
+                                        <div class="card-expiry">
+                                            <span>Срок</span>
+                                            <p id="cardExpiryDisplay">MM/YY</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="cardNumber">Номер карты *</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-credit-card"></i>
+                                        <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+                                    </div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="cardHolder">Держатель карты *</label>
+                                    <input type="text" id="cardHolder" placeholder="IVAN IVANOV">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cardExpiry">Срок действия *</label>
+                                    <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cardCvv">CVV/CVC *</label>
+                                    <div class="input-with-icon">
+                                        <input type="password" id="cardCvv" placeholder="123" maxlength="3">
+                                        <i class="fas fa-question-circle tooltip-icon" title="3 цифры на обороте карты"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Промокод -->
+                    <section class="form-section promo-section">
+                        <div class="promo-toggle" id="promoToggle">
+                            <i class="fas fa-tag"></i>
+                            <span>У меня есть промокод</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="promo-form" id="promoForm" style="display: none;">
+                            <div class="form-group">
+                                <div class="input-with-button">
+                                    <input type="text" id="promoCode" placeholder="Введите промокод">
+                                    <button class="apply-btn" onclick="applyPromo()">Применить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Правая колонка - итог -->
+                <div class="checkout-sidebar">
+                    <div class="order-summary sticky">
+                        <h2>Ваш заказ</h2>
+                        
+                        <div class="summary-items" id="summaryItems"></div>
+
+                        <div class="summary-row">
+                            <span>Товары (<span id="itemsCount">0</span>)</span>
+                            <span id="subtotal">0 BYN</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Доставка</span>
+                            <span id="deliveryCost">500 BYN</span>
+                        </div>
+
+                        <div class="summary-row discount" id="discountRow" style="display: none;">
+                            <span>Скидка</span>
+                            <span id="discountAmount">-0 BYN</span>
+                        </div>
+
+                        <div class="summary-total">
+                            <span>Итого к оплате</span>
+                            <span id="totalAmount">0 BYN</span>
+                        </div>
+
+                        <button class="checkout-submit" id="submitOrder" onclick="submitOrder()">
+                            <span>Оформить заказ</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+
+                        <p class="terms-text">
+                            Нажимая кнопку, вы соглашаетесь с 
+                            <a href="#">условиями продажи</a> и 
+                            <a href="#">политикой конфиденциальности</a>
+                        </p>
+
+                        <div class="payment-security">
+                            <div class="security-item">
+                                <i class="fas fa-lock"></i>
+                                <span>SSL-шифрование</span>
+                            </div>
+                            <div class="security-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Проверка 18+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно подтверждения -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <div class="success-animation">
+                <div class="checkmark-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <h2>Заказ оформлен!</h2>
+            <p>Номер вашего заказа: <strong id="orderNumber">#12345</strong></p>
+            <p class="modal-text">Мы отправили подтверждение на ваш email и SMS с деталями заказа.</p>
+            <div class="modal-actions">
+                <a href="index.html" class="btn-primary">Вернуться в магазин</a>
+                <button class="btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Распечатать
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="checkout-script.js"></script>
+</body>
+</html>

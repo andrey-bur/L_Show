@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine & Spirits | Премиум алкоголь</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Модальное окно авторизации -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <button class="close-auth" id="closeAuth"><i class="fas fa-times"></i></button>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+
+            <!-- Форма входа -->
+            <form class="auth-form active" id="loginForm">
+                <h2>Добро пожаловать</h2>
+                <p class="auth-subtitle">Войдите в свой аккаунт</p>
+                
+                <div class="form-group">
+                    <label>Email или телефон</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="ivan@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox">
+                        <span>Запомнить меня</span>
+                    </label>
+                    <a href="#" class="forgot-password">Забыли пароль?</a>
+                </div>
+
+                <button type="submit" class="auth-submit">
+                    <span>Войти</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div class="social-auth">
+                    <p>Или войдите через</p>
+                    <div class="social-buttons">
+                        <button type="button" class="social-btn google"><i class="fab fa-google"></i></button>
+                        <button type="button" class="social-btn telegram"><i class="fab fa-telegram-plane"></i></button>
+                        <button type="button" class="social-btn vk"><i class="fab fa-vk"></i></button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Форма регистрации -->
+            <form class="auth-form" id="registerForm">
+                <h2>Создать аккаунт</h2>
+                <p class="auth-subtitle">Присоединяйтесь к нам</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input type="text" placeholder="Иван" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Фамилия</label>
+                        <input type="text" placeholder="Иванов" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="ivan@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" placeholder="+375 (44) 549-85-65" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Минимум 8 символов" required>
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Подтвердите пароль</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <label class="agreement">
+                    <input type="checkbox" required>
+                    <span>Я согласен с <a href="#">условиями использования</a> и <a href="#">политикой конфиденциальности</a></span>
+                </label>
+
+                <button type="submit" class="auth-submit">
+                    <span>Создать аккаунт</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Шапка -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-wine-bottle"></i>
+                    <span>Wine & Spirits</span>
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="#catalog">Каталог</a></li>
+                    <li><a href="#popular">Популярное</a></li>
+                    <li><a href="#about">О нас</a></li>
+                    <li><a href="#contacts">Контакты</a></li>
+                </ul>
+
+                <div class="header-actions">
+                    <button class="search-btn" id="searchToggle">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    <!-- Профиль -->
+                    <div class="profile-wrapper">
+                        <button class="profile-btn" id="profileBtn">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="profile-info">
+                                    <h4>Иван Иванов</h4>
+                                    <span>ivan@example.com</span>
+                                </div>
+                            </div>
+                            <ul class="profile-menu">
+                                <li><a href="profile.html"><i class="fas fa-user-circle"></i> Личный кабинет</a></li>
+                                <li><a href="profile.html#orders"><i class="fas fa-box"></i> Мои заказы</a></li>
+                                <li><a href="profile.html#favorites"><i class="fas fa-heart"></i> Избранное</a></li>
+                                <li><a href="profile.html#addresses"><i class="fas fa-map-marker-alt"></i> Адреса</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="cart-wrapper">
+                        <button class="cart-btn" id="cartBtn">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span class="cart-count" id="cartCount">0</span>
+                        </button>
+                        <div class="cart-dropdown" id="cartDropdown">
+                            <div class="cart-header">
+                                <h3>Ваша корзина</h3>
+                                <button class="close-cart" id="closeCart"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="cart-items" id="cartItems">
+                                <p class="empty-cart">Корзина пуста</p>
+                            </div>
+                            <div class="cart-footer">
+                                <div class="cart-total">
+                                    <span>Итого:</span>
+                                    <span id="cartTotal">0 ₽</span>
+                                </div>
+                                <a href="checkout.html" class="checkout-btn-link">
+                                    <button class="checkout-btn">Оформить заказ</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </nav>
+        </div>
+        
+        <div class="search-overlay" id="searchOverlay">
+            <div class="search-container">
+                <input type="text" placeholder="Поиск по названию, типу или стране..." id="searchInput">
+                <button class="close-search" id="closeSearch"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Премиальный алкоголь<br>для особых моментов</h1>
+            <p class="hero-subtitle">Коллекция лучших вин, виски и крепких напитков со всего мира</p>
+            <a href="#catalog" class="hero-btn">Смотреть каталог</a>
+        </div>
+        <div class="hero-scroll">
+            <span>Прокрутите вниз</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Каталог -->
+    <section class="catalog" id="catalog">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Каталог</h2>
+                <p class="section-subtitle">Выберите идеальный напиток</p>
+            </div>
+
+            <div class="controls-bar">
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Все</button>
+                    <button class="filter-btn" data-filter="wine">Вино</button>
+                    <button class="filter-btn" data-filter="whiskey">Виски</button>
+                    <button class="filter-btn" data-filter="vodka">Водка</button>
+                    <button class="filter-btn" data-filter="cognac">Коньяк</button>
+                    <button class="filter-btn" data-filter="champagne">Шампанское</button>
+                </div>
+
+                <div class="sort-wrapper">
+                    <select class="sort-select" id="sortSelect">
+                        <option value="default">Сортировка</option>
+                        <option value="price-asc">Цена: по возрастанию</option>
+                        <option value="price-desc">Цена: по убыванию</option>
+                        <option value="name">Название</option>
+                        <option value="rating">По рейтингу</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </section>
+
+    <!-- Популярные товары -->
+    <section class="popular" id="popular">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Популярное</h2>
+                <p class="section-subtitle">То, что выбирают наши клиенты</p>
+            </div>
+
+            <div class="popular-grid" id="popularGrid"></div>
+        </div>
+    </section>
+
+    <!-- О нас -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image">
+                    <div class="image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" alt="Wine cellar">
+                    </div>
+                </div>
+                <div class="about-content">
+                    <h2 class="section-title">О нашем магазине</h2>
+                    <p class="about-text">
+                        Мы специализируемся на премиальном алкоголе с 2015 года. Наша команда сомелье отбирает лучшие образцы из более чем 20 стран мира.
+                    </p>
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Гарантия подлинности</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-truck"></i>
+                            <span>Доставка от 30 минут</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-undo"></i>
+                            <span>Возврат в течение 14 дней</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-headset"></i>
+                            <span>Персональный консультант</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Преимущества -->
+    <section class="benefits">
+        <div class="container">
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <i class="fas fa-award"></i>
+                    <h3>Только оригинал</h3>
+                    <p>Прямые поставки от производителей</p>
+                </div>
+                <div class="benefit-card">
+                    <i class="fas fa-temperature-low"></i>
+                    <h3>Оптимальные условия</h3>
+                    <p>Соблюдение температурного режима</p>
+                </div>
+                <div class="benefit-card">
+                    <i class="fas fa-gift"></i>
+                    <h3>Подарочная упаковка</h3>
+                    <p>Бесплатно при заказе от 5000 ₽</p>
+                </div>
+                <div class="benefit-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Безопасная оплата</h3>
+                    <p>Защита данных покупателей</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer" id="contacts">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <i class="fas fa-wine-bottle"></i>
+                        <span>Wine & Spirits</span>
+                    </a>
+                    <p>Премиальный алкоголь для ценителей. Только лучшие напитки со всего мира.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Каталог</h4>
+                    <ul>
+                        <li><a href="#">Вино</a></li>
+                        <li><a href="#">Виски</a></li>
+                        <li><a href="#">Коньяк</a></li>
+                        <li><a href="#">Водка</a></li>
+                        <li><a href="#">Шампанское</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Информация</h4>
+                    <ul>
+                        <li><a href="#">О нас</a></li>
+                        <li><a href="#">Доставка</a></li>
+                        <li><a href="#">Оплата</a></li>
+                        <li><a href="#">Возврат</a></li>
+                        <li><a href="#">Блог</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-contact">
+                    <h4>Контакты</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Минск, ул. Колесникова, 3</p>
+                    <p><i class="fas fa-phone"></i> +375 (44) 549-85-65</p>
+                    <p><i class="fas fa-envelope"></i> info@wine-spirits.by</p>
+                    <p><i class="fas fa-clock"></i> Ежедневно 10:00-22:00</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Wine & Spirits. Все права защищены.</p>
+                <p class="age-warning">Чрезмерное употребление алкоголя вредит вашему здоровью</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>Товар добавлен в корзину</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
