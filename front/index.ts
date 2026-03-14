@@ -1,9 +1,18 @@
-import {Header} from "./src/components/header/index";
-const app=document.getElementById("body")
-if(app){
-    const header=new Header();
-    header.mount(app);
+import { Main } from "./src/components/main";
+
+class App {
+    private main: Main;
+
+    constructor() {
+        this.main = new Main();
+        this.init();
+    }
+
+    private init() {
+        this.main.mount(document.body);
+    }
 }
-else {
-    alert("что-то пошло не так" );
-}
+
+document.addEventListener("DOMContentLoaded", () => {
+    new App();
+});
