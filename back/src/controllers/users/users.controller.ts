@@ -1,3 +1,3 @@
-export const regist=(req:Request,res:Response)=>{
+export const Users=(req:Request,res:Response)=>{
     
 }
