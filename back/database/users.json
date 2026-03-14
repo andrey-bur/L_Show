@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Ivan Petrov",
+    "email": "ivan@mail.com",
+    "password": "123456",
+    "age": 28,
+    "role": "user"
+  },
+  {
+    "id": 2,
+    "name": "Anna Smirnova",
+    "email": "anna@mail.com",
+    "password": "password",
+    "age": 32,
+    "role": "user"
+  },
+  {
+    "id": 3,
+    "name": "Admin",
+    "email": "admin@shop.com",
+    "password": "admin123",
+    "age": 35,
+    "role": "admin"
+  }
+]
