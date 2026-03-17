@@ -1,6 +1,6 @@
 import { Product } from "../interface/Product";
 
-const API_URL = "http://localhost:6967/products";
+const API_URL = "http://localhost:3000/product";
 
 export const ProductService = {
   async getAll(): Promise<Product[]> {

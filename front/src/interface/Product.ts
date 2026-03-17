@@ -6,8 +6,9 @@ export class Product {
   rating: number;
   volume: string;
   country: string;
-  popular: boolean;
   image: string;
+  popular: boolean;
+  
 
   constructor(data: Product) {
     this.id = data.id;
@@ -17,7 +18,7 @@ export class Product {
     this.rating = data.rating;
     this.volume = data.volume;
     this.country = data.country;
-    this.popular = data.popular;
     this.image = data.image;
+    this.popular = data.popular;
   }
 }

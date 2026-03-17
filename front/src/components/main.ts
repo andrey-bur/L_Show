@@ -1,6 +1,7 @@
 import { Component } from "../utils/Component";
 import { Product } from "../interface/Product";
 import { ProductService } from "../api/product";
+import {router} from "../utils/router/router-instance"
 
 interface MainState {
     products: Product[];
@@ -24,7 +25,7 @@ export class Main extends Component<MainState> {
 
     private async loadProducts() {
         const products = await ProductService.getAll();
-        this.state.products = products; // не триггерим полный ререндер
+        this.state.products = products; 
         this.updateCatalog(products);
     }
 
@@ -144,6 +145,73 @@ h1, h2, h3, h4 {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.login-btn, .register-btn {
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.login-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.login-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+}
+
+.register-btn {
+    background: var(--gradient);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.register-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.register-btn:active, .login-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .login-btn, .register-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+}
+
+.cart-btn {
+    position: relative; /* Чтобы позиционировать бейдж */
+}
+
+.cart-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-primary);
 }
 
 .search-btn, .profile-btn, .cart-btn {
@@ -608,6 +676,86 @@ h1, h2, h3, h4 {
     color: var(--text-muted);
     font-size: 0.85rem;
 }
+    /* ====================== СТИЛИ ФУТЕРА ====================== */
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr; /* Пропорции как в вашем коде */
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-links h4 {
+    color: var(--text-primary);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.footer-links h4::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 30px;
+    height: 2px;
+    background: var(--accent);
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links ul li {
+    margin-bottom: 12px;
+}
+
+.footer-links ul li a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.footer-links ul li a:hover {
+    color: var(--accent);
+    transform: translateX(5px); /* Легкий сдвиг вправо */
+}
+
+.footer-links ul li i {
+    color: var(--accent);
+    margin-right: 10px;
+    width: 16px;
+    text-align: center;
+}
+
+.footer-brand p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-top: 20px;
+    max-width: 300px;
+}
+
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr; /* 2 колонки на планшетах */
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: 1fr; /* 1 колонка на телефонах */
+        gap: 30px;
+    }
+    
+    .footer-links h4 {
+        margin-bottom: 15px;
+    }
+}
         `;
     }
 
@@ -649,10 +797,10 @@ h1, h2, h3, h4 {
                     </a>
 
                     <ul class="nav-links">
-                        <li><a href="#catalog">Каталог</a></li>
-                        <li><a href="#popular">Популярное</a></li>
-                        <li><a href="#about">О нас</a></li>
-                        <li><a href="#contacts">Контакты</a></li>
+                        <li><a href="catalog">Каталог</a></li>
+                        <li><a href="popular">Популярное</a></li>
+                        <li><a href="about">О нас</a></li>
+                        <li><a href="contacts">Контакты</a></li>
                     </ul>
 
                     <div class="header-actions">
@@ -663,7 +811,7 @@ h1, h2, h3, h4 {
                         ${!this.state.isLoggedIn ? `
                             <button class="login-btn" id="loginBtn">Войти</button>
                             <button class="register-btn" id="registerBtn">Регистрация</button>
-                        ` : ""}
+                        ` : ""}     
 
                         <div class="profile-wrapper">
                             <button class="profile-btn" id="profileBtn">
@@ -692,7 +840,8 @@ h1, h2, h3, h4 {
                         ${this.state.isLoggedIn ? `
                         <button class="cart-btn" id="cartBtn">
                             <i class="fas fa-shopping-bag"></i>
-                        </button>` : ""}
+                            <span class="cart-badge">0</span> 
+                        </button>    ` : ""}
                     </div>
                 </nav>
             </div>
@@ -705,7 +854,7 @@ h1, h2, h3, h4 {
         return `
         <div class="search-overlay ${this.state.isSearchOpen ? "active" : ""}" id="searchOverlay">
             <div class="search-container">
-                <input type="text" placeholder="Поиск..." id="searchInput">
+                <input type="text" placeholder="Поиск по стране названию категории" id="searchInput">
                 <button class="close-search" id="closeSearch"><i class="fas fa-times"></i></button>
             </div>
         </div>
@@ -759,15 +908,15 @@ h1, h2, h3, h4 {
         </section>
         `;
     }
-
+    
     private updateCatalog(products: Product[]) {
         const grid = this.element.querySelector(".products-grid");
         if (!grid) return;
 
-        grid.innerHTML = products.map(p => `
-            <div class="product-card">
+        grid.innerHTML = products.map(p =>
+            `<div class="product-card">
                 <div class="product-image">
-                    <img src="${p.image}" alt="${p.name}">
+                    <img src="${p.image}" alt="${p.name}" >
                 </div>
                 <div class="product-info">
                     <div class="product-category">${p.categoryName}</div>
@@ -943,15 +1092,15 @@ h1, h2, h3, h4 {
 
     // ====================== СОБЫТИЯ ======================
     private attachAuthNavigation() {
-        const login = this.element.querySelector("#loginBtn");
-        const register = this.element.querySelector("#registerBtn");
+        const login = this.element.querySelector(".login-btn");
+        const register = this.element.querySelector(".register-btn");
 
         login?.addEventListener("click", () => {
-            window.location.href = "/auth";
+            router.navigate("/login");
         });
 
         register?.addEventListener("click", () => {
-            window.location.href = "/register";
+            router.navigate("/register");
         });
     }
 
