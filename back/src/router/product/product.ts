@@ -8,7 +8,7 @@ import {
   sortProductsByPriceDesc,
   sortProductsByName,
   sortProductsByRating
-} from "../controllers/products/products.controller"
+} from "../../controllers/products/products.controller"
 
 const router = express.Router()
 

@@ -7,7 +7,7 @@
     "rating": 4.9,
     "volume": "0.75л",
     "country": "Франция",
-    "image": "../public/ChâteauMargaux.jfif",
+    "image": "ChâteauMargaux.jfif",
     "popular": true
   },
   {
@@ -18,7 +18,7 @@
     "rating": 4.8,
     "volume": "0.7л",
     "country": "Шотландия",
-    "image": "../public/Macallan.jfif",
+    "image": "Macallan.jfif",
     "popular": true
   },
   {
@@ -29,7 +29,7 @@
     "rating": 4.7,
     "volume": "1л",
     "country": "Россия",
-    "image": "../public/BelugaGoldLine.jfif",
+    "image": "BelugaGoldLine.jfif",
     "popular": false
   },
   {
@@ -40,7 +40,7 @@
     "rating": 4.9,
     "volume": "0.7л",
     "country": "Франция",
-    "image": "../public/Hennessy.jfif",
+    "image": "Hennessy.jfif",
     "popular": true
   },
   {
@@ -51,7 +51,7 @@
     "rating": 4.8,
     "volume": "0.75л",
     "country": "Франция",
-    "image": "../public/DomPérignon.jpg",
+    "image": "DomPérignon.jpg",
     "popular": true
   },
   {
@@ -62,7 +62,7 @@
     "rating": 4.7,
     "volume": "0.75л",
     "country": "Италия",
-    "image": "../public/Sassicaia.jfif",
+    "image": "Sassicaia.jfif",
     "popular": false
   },
   {
@@ -73,7 +73,7 @@
     "rating": 4.9,
     "volume": "0.7л",
     "country": "Шотландия",
-    "image": "../public/Glenfiddich.jpg",
+    "image": "Glenfiddich.jpg",
     "popular": true
   },
   {
@@ -84,7 +84,7 @@
     "rating": 5.0,
     "volume": "0.75л",
     "country": "Франция",
-    "image": "../public/KrugGrandeCuvée.jfif",
+    "image": "KrugGrandeCuvée.jfif",
     "popular": true
   }
 ]

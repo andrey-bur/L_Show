@@ -5,14 +5,12 @@ const file = "products"
 type Product = {
   id: number
   name: string
-  category: string
   categoryName: string
   price: number
   rating: number
   volume: string
   country: string
   image: string
-  badge: string | null
   popular: boolean
 }
 
@@ -26,14 +24,14 @@ export async function searchProducts(query: string): Promise<Product[]> {
 
   return products.filter(p =>
     p.name.toLowerCase().includes(value) ||
-    p.category.toLowerCase().includes(value) ||
+    p.categoryName.toLowerCase().includes(value) ||
     p.country.toLowerCase().includes(value)
   )
 }
 
 export async function filterProductsByType(type: string): Promise<Product[]> {
   const products: Product[] = await readData(file)
-  return products.filter(p => p.category === type)
+  return products.filter(p => p.categoryName === type)
 }
 
 export async function filterProductsByPopular(popular: boolean): Promise<Product[]> {

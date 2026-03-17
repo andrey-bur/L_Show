@@ -10,19 +10,14 @@ type User = {
   password: string
 }
 
-export async function findUser(firstName: string, lastName: string, password: string): Promise<User | null> {
+export async function findUser(name:string , password: string): Promise<User | null> {
   const users: User[] = await readData(file)
-
-  const fullName = `${firstName} ${lastName}`
-
   const user = users.find(
-    u => u.name == fullName && u.password == password
+    u => u.name == name && u.password == password
   )
-
   if (!user) {
     return null
   }
-
   return user
 }
 
