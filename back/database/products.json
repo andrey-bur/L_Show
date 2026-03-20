@@ -8,7 +8,9 @@
     "volume": "0.75л",
     "country": "Франция",
     "image": "ChâteauMargaux.jfif",
-    "popular": true
+    "popular": true,
+    "description": "Великое красное вино с бархатистыми танинами и долгим послевкусием.",
+    "inStock": true
   },
   {
     "id": 2,
@@ -19,7 +21,9 @@
     "volume": "0.7л",
     "country": "Шотландия",
     "image": "Macallan.jfif",
-    "popular": true
+    "popular": true,
+    "description": "Односолодовый виски с нотами сухофруктов, дуба и шоколада.",
+    "inStock": true
   },
   {
     "id": 3,
@@ -30,7 +34,9 @@
     "volume": "1л",
     "country": "Россия",
     "image": "BelugaGoldLine.jfif",
-    "popular": false
+    "popular": false,
+    "description": "Премиальная водка с мягким вкусом и чистым ароматом.",
+    "inStock": true
   },
   {
     "id": 4,
@@ -41,7 +47,9 @@
     "volume": "0.7л",
     "country": "Франция",
     "image": "Hennessy.jfif",
-    "popular": true
+    "popular": true,
+    "description": "Купаж выдержанных спиртов с насыщенными древесными и пряными оттенками.",
+    "inStock": true
   },
   {
     "id": 5,
@@ -52,7 +60,9 @@
     "volume": "0.75л",
     "country": "Франция",
     "image": "DomPérignon.jpg",
-    "popular": true
+    "popular": true,
+    "description": "Элегантное шампанское с тонким перляжем и цитрусовыми акцентами.",
+    "inStock": true
   },
   {
     "id": 6,
@@ -63,7 +73,9 @@
     "volume": "0.75л",
     "country": "Италия",
     "image": "Sassicaia.jfif",
-    "popular": false
+    "popular": false,
+    "description": "Итальянское супер-тосканское вино с гармоничным фруктовым профилем.",
+    "inStock": false
   },
   {
     "id": 7,
@@ -74,17 +86,21 @@
     "volume": "0.7л",
     "country": "Шотландия",
     "image": "Glenfiddich.jpg",
-    "popular": true
+    "popular": true,
+    "description": "Выдержанный виски с ванилью, специями и мягкой сладостью.",
+    "inStock": true
   },
   {
     "id": 8,
     "name": "Krug Grande Cuvée",
     "categoryName": "Шампанское",
     "price": 55000,
-    "rating": 5.0,
+    "rating": 5,
     "volume": "0.75л",
     "country": "Франция",
     "image": "KrugGrandeCuvée.jfif",
-    "popular": true
+    "popular": true,
+    "description": "Сложное шампанское с многослойным вкусом и кремовой текстурой.",
+    "inStock": true
   }
 ]

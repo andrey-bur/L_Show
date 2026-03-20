@@ -1,8 +1,10 @@
 import express from "express"
 import {
   getAllProducts,
+  getProductsByQuery,
   searchProducts,
   filterProductsByType,
+  filterProductsByAvailability,
   filterProductsByPopular,
   sortProductsByPriceAsc,
   sortProductsByPriceDesc,
@@ -13,7 +15,38 @@ import {
 const router = express.Router()
 
 router.get("/", async (req, res) => {
-  const products = await getAllProducts()
+  const querySearch = typeof req.query.search === "string" ? req.query.search : undefined
+  const queryType = typeof req.query.type === "string" ? req.query.type : undefined
+  const querySort = typeof req.query.sort === "string" ? req.query.sort : undefined
+  const queryInStockRaw = typeof req.query.inStock === "string" ? req.query.inStock : undefined
+
+  const queryInStock = queryInStockRaw === undefined
+    ? undefined
+    : queryInStockRaw.toLowerCase() === "true"
+
+  const hasQuery = Boolean(querySearch || queryType || querySort || queryInStockRaw !== undefined)
+  let products = await getAllProducts()
+
+  if (hasQuery) {
+    const productQuery: {
+      search?: string
+      type?: string
+      sort?: "price-asc" | "price-desc" | "name" | "rating"
+      inStock?: boolean
+    } = {}
+
+    if (querySearch) productQuery.search = querySearch
+    if (queryType) productQuery.type = queryType
+    if (querySort === "price-asc" || querySort === "price-desc" || querySort === "name" || querySort === "rating") {
+      productQuery.sort = querySort
+    }
+    if (queryInStockRaw !== undefined) {
+      productQuery.inStock = queryInStockRaw.toLowerCase() === "true"
+    }
+
+    products = await getProductsByQuery(productQuery)
+  }
+
   res.json(products)
 })
 
@@ -31,6 +64,12 @@ router.get("/type/:type", async (req, res) => {
 router.get("/popular/:value", async (req, res) => {
   const popular = req.params.value === "true"
   const products = await filterProductsByPopular(popular)
+  res.json(products)
+})
+
+router.get("/availability/:value", async (req, res) => {
+  const inStock = req.params.value === "true"
+  const products = await filterProductsByAvailability(inStock)
   res.json(products)
 })
 
