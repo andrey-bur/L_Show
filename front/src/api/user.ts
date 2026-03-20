@@ -1,4 +1,5 @@
 import { User } from "../interface/User";
+import { parseJson, request, requestJson } from "./http";
 
 const API_URL = "http://localhost:3000/users";
 const AUTH_HINT_KEY = "hasActiveSession";
@@ -20,21 +21,6 @@ export type UpdateUserPayload = Partial<User> & {
   oldPassword?: string;
 };
 
-async function parseJson<T>(response: Response): Promise<T> {
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message =
-      data && typeof data === "object" && "message" in data
-        ? String((data as { message?: unknown }).message ?? "Request failed")
-        : "Request failed";
-
-    throw new Error(message);
-  }
-
-  return data as T;
-}
-
 function setAuthHint(value: boolean): void {
   try {
     window.localStorage.setItem(AUTH_HINT_KEY, String(value));
@@ -53,61 +39,47 @@ export function hasAuthHint(): boolean {
 
 export const UserService = {
   async login(payload: LoginPayload): Promise<User> {
-    const response = await fetch(`${API_URL}/login`, {
+    const data = await requestJson<User>(`${API_URL}/login`, {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
-        "X-Pinggy-No-Screen": "true",
-        "User-Agent": "vite-app"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     });
 
-    const data = await parseJson<User>(response);
     setAuthHint(true);
     return new User(data);
   },
 
   async register(payload: RegisterPayload): Promise<User> {
-    const response = await fetch(`${API_URL}/registration`, {
+    const data = await requestJson<User>(`${API_URL}/registration`, {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
-        "X-Pinggy-No-Screen": "true",
-        "User-Agent": "vite-app"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     });
 
-    const data = await parseJson<User>(response);
     setAuthHint(true);
     return new User(data);
   },
 
   async update(id: number, data: UpdateUserPayload): Promise<void> {
-    const response = await fetch(`${API_URL}/${id}`, {
+    await requestJson<{ message: string }>(`${API_URL}/${id}`, {
       method: "PATCH",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
-        "X-Pinggy-No-Screen": "true",
-        "User-Agent": "vite-app"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(data)
     });
-
-    await parseJson<{ message: string }>(response);
   },
 
   async getCurrent(): Promise<User | null> {
-    const response = await fetch(`${API_URL}/me`, {
-      credentials: "include",
-      headers: {
-        "X-Pinggy-No-Screen": "true",
-        "User-Agent": "vite-app"
-      }
+    const response = await request(`${API_URL}/me`, {
+      credentials: "include"
     });
 
     if (response.status === 401) {
@@ -122,16 +94,10 @@ export const UserService = {
 
   async logout(): Promise<void> {
     try {
-      const response = await fetch(`${API_URL}/logout`, {
+      await requestJson<{ message: string }>(`${API_URL}/logout`, {
         method: "POST",
-        credentials: "include",
-        headers: {
-          "X-Pinggy-No-Screen": "true",
-          "User-Agent": "vite-app"
-        }
+        credentials: "include"
       });
-
-      await parseJson<{ message: string }>(response);
     } finally {
       setAuthHint(false);
     }

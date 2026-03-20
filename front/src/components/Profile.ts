@@ -1,6 +1,7 @@
-import { hasAuthHint, UserService } from "../api/user";
+import { UserService } from "../api/user";
 import { User } from "../interface/User";
-import { Component } from "../utils/Component";
+import { Component } from "../utils/Component/Component";
+import { requireCurrentUser } from "../utils/helper/auth";
 import { router } from "../utils/router/router-instance";
 
 interface ProfileState {
@@ -41,27 +42,16 @@ export class Profile extends Component<ProfileState> {
     }
 
     private async init(): Promise<void> {
-        if (!hasAuthHint()) {
-            router.navigate("/login");
+        const user = await requireCurrentUser();
+
+        if (!user) {
             return;
         }
 
-        try {
-            const user = await UserService.getCurrent();
-
-            if (!user) {
-                router.navigate("/login");
-                return;
-            }
-
-            this.setState({
-                user,
-                isLoading: false
-            });
-        } catch (error) {
-            console.error("Failed to load profile", error);
-            router.navigate("/login");
-        }
+        this.setState({
+            user,
+            isLoading: false
+        });
     }
 
     private buildStyles(): string {

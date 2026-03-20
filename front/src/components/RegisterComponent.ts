@@ -1,5 +1,6 @@
 import { UserService } from "../api/user";
-import { Component } from "../utils/Component";
+import { Component } from "../utils/Component/Component";
+import { bindAuthPageNavigation, buildAuthPageStyles, renderAuthPage } from "../utils/helper/auth-page";
 import { router } from "../utils/router/router-instance";
 
 interface RegisterState {
@@ -14,161 +15,48 @@ export class RegisterComponent extends Component<RegisterState> {
     }
 
     private buildStyles(): string {
-        return `
-        .auth-page-wrapper {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
-            padding: 40px 20px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .auth-container {
-            display: flex;
-            width: 100%;
-            max-width: 1100px;
-            background: #ffffff;
-            border-radius: 30px;
-            overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-        }
-
-        .auth-decor {
-            flex: 1;
-            background: linear-gradient(rgba(45, 0, 5, 0.85), rgba(10, 10, 10, 0.95)),
-                        url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80') center/cover;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px;
-            color: #ffffff;
-            text-align: center;
-        }
-
-        .auth-decor .logo-big {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .auth-form-section {
-            flex: 1.2;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .auth-header h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.8rem;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-        }
-
-        .auth-form {
+        return buildAuthPageStyles({
+            decorImage: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80",
+            containerMaxWidth: "1100px",
+            formSectionPadding: "60px",
+            formLayoutCss: `
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
+            `,
+            extraCss: `
         .input-group.full-width {
             grid-column: span 2;
         }
 
-        .input-group label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .auth-form input {
-            padding: 14px 18px;
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .auth-form input:focus {
-            outline: none;
-            border-color: #2d0005;
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(45, 0, 5, 0.1);
-        }
-
         .submit-btn {
             grid-column: span 2;
-            background: #1a1a1a;
-            color: #fff;
             padding: 16px;
-            border: none;
             border-radius: 12px;
-            font-weight: 700;
             font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
             margin-top: 10px;
         }
 
         .submit-btn:hover {
-            background: #2d0005;
             transform: translateY(-2px);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.7;
-            cursor: wait;
-            transform: none;
         }
 
         .auth-error {
             grid-column: span 2;
-            color: #a52a2a;
-            font-size: 0.95rem;
+            margin-top: 0;
         }
 
         .auth-footer {
             margin-top: 30px;
-            text-align: center;
-            grid-column: span 2;
-            color: #666;
             font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
         }
 
-        #goLogin {
-            color: #2d0005;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            margin-left: 5px;
+        #goLogin.auth-footer-action {
             display: inline-block;
             position: relative;
-            transition: color 0.3s ease;
         }
 
-        #goLogin:hover {
-            color: #a52a2a;
-        }
-
-        #goLogin::after {
+        #goLogin.auth-footer-action::after {
             content: '';
             position: absolute;
             width: 0;
@@ -179,15 +67,11 @@ export class RegisterComponent extends Component<RegisterState> {
             transition: width 0.3s ease;
         }
 
-        #goLogin:hover::after {
+        #goLogin.auth-footer-action:hover::after {
             width: 100%;
         }
 
         @media (max-width: 768px) {
-            .auth-container {
-                flex-direction: column;
-            }
-
             .auth-form {
                 grid-template-columns: 1fr;
             }
@@ -198,73 +82,51 @@ export class RegisterComponent extends Component<RegisterState> {
                 grid-column: span 1;
             }
         }
-        `;
+            `
+        });
     }
 
     render(): string {
-        return `
-            <div class="auth-container">
-                <div class="auth-decor">
-                    <div class="logo-big">
-                        <i class="fas fa-wine-bottle"></i>
-                        <span>Wine & Spirits</span>
-                    </div>
-                    <p>Станьте частью нашего закрытого клуба ценителей благородных напитков.</p>
-                </div>
-
-                <div class="auth-form-section">
-                    <div class="auth-header">
-                        <h2>Регистрация</h2>
-                        <p style="color: #666; margin-bottom: 30px;">Создайте аккаунт и получите активную корзину и доставки в профиле.</p>
-                    </div>
-
-                    <form id="registerForm" class="auth-form" data-registration>
+        return renderAuthPage({
+            title: "Регистрация",
+            subtitle: "Создайте аккаунт и получите активную корзину и доставки в профиле.",
+            decorText: "Станьте частью нашего закрытого клуба ценителей благородных напитков.",
+            formId: "registerForm",
+            formContent: `
                         <div class="input-group">
                             <label for="reg-name">Ваше имя</label>
-                            <input id="reg-name" type="text" placeholder="Иван Петров" required>
+                            <input id="reg-name" name="name" type="text" placeholder="Иван Петров" required>
                         </div>
                         <div class="input-group">
                             <label for="reg-login">Логин</label>
-                            <input id="reg-login" type="text" placeholder="ivan_petrov" required>
+                            <input id="reg-login" name="login" type="text" placeholder="ivan_petrov" required>
                         </div>
                         <div class="input-group">
                             <label for="reg-phone">Телефон</label>
-                            <input id="reg-phone" type="tel" placeholder="+375 (29) 000-00-00" required>
+                            <input id="reg-phone" name="phone" type="tel" placeholder="+375 (29) 000-00-00" required>
                         </div>
                         <div class="input-group">
                             <label for="reg-email">Электронная почта</label>
-                            <input id="reg-email" type="email" placeholder="mail@example.com" required>
+                            <input id="reg-email" name="email" type="email" placeholder="mail@example.com" required>
                         </div>
                         <div class="input-group full-width">
                             <label for="reg-password">Придумайте пароль</label>
-                            <input id="reg-password" type="password" placeholder="••••••••" minlength="4" required>
+                            <input id="reg-password" name="password" type="password" placeholder="••••••••" minlength="4" required>
                         </div>
                         ${this.state.error ? `<div class="auth-error">${this.state.error}</div>` : ""}
                         <button type="submit" class="submit-btn" ${this.state.isSubmitting ? "disabled" : ""}>
                             ${this.state.isSubmitting ? "Создаём..." : "Создать профиль"}
                         </button>
-                    </form>
-
-                    <div class="auth-footer">
-                        Уже есть аккаунт? <span id="goLogin">Войти в систему</span>
-                    </div>
-                </div>
-            </div>
-        `;
+            `,
+            footerPrompt: "Уже есть аккаунт?",
+            footerActionId: "goLogin",
+            footerActionText: "Войти в систему"
+        });
     }
 
     protected addMove(): void {
         const form = this.element.querySelector("#registerForm");
-        const logo = this.element.querySelector(".logo-big");
-        const goLogin = this.element.querySelector("#goLogin");
-
-        logo?.addEventListener("click", () => {
-            router.navigate("/");
-        });
-
-        goLogin?.addEventListener("click", () => {
-            router.navigate("/login");
-        });
+        bindAuthPageNavigation(this.element, "#goLogin", "/login");
 
         if (form instanceof HTMLFormElement) {
             form.addEventListener("submit", (event) => {
@@ -281,11 +143,12 @@ export class RegisterComponent extends Component<RegisterState> {
             return;
         }
 
-        const name = (this.element.querySelector("#reg-name") as HTMLInputElement | null)?.value.trim() ?? "";
-        const login = (this.element.querySelector("#reg-login") as HTMLInputElement | null)?.value.trim() ?? "";
-        const phone = (this.element.querySelector("#reg-phone") as HTMLInputElement | null)?.value.trim() ?? "";
-        const email = (this.element.querySelector("#reg-email") as HTMLInputElement | null)?.value.trim() ?? "";
-        const password = (this.element.querySelector("#reg-password") as HTMLInputElement | null)?.value.trim() ?? "";
+        const formData = new FormData(form);
+        const name = String(formData.get("name") ?? "").trim();
+        const login = String(formData.get("login") ?? "").trim();
+        const phone = String(formData.get("phone") ?? "").trim();
+        const email = String(formData.get("email") ?? "").trim();
+        const password = String(formData.get("password") ?? "").trim();
 
         if (!name || !login || !phone || !email || !password) {
             this.setState({ error: "Заполните все поля" });

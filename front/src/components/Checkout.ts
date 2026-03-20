@@ -1,6 +1,7 @@
-import { hasAuthHint, UserService } from "../api/user";
+import { UserService } from "../api/user";
 import { CartItem, Delivery, User } from "../interface/User";
-import { Component } from "../utils/Component";
+import { Component } from "../utils/Component/Component";
+import { requireCurrentUser } from "../utils/helper/auth";
 import { router } from "../utils/router/router-instance";
 
 interface CheckoutState {
@@ -22,28 +23,17 @@ export class Checkout extends Component<CheckoutState> {
     }
 
     private async loadCheckout(): Promise<void> {
-        if (!hasAuthHint()) {
-            router.navigate("/login");
+        const user = await requireCurrentUser();
+
+        if (!user) {
             return;
         }
 
-        try {
-            const user = await UserService.getCurrent();
-
-            if (!user) {
-                router.navigate("/login");
-                return;
-            }
-
-            this.setState({
-                user,
-                items: user.cart,
-                isLoading: false
-            });
-        } catch (error) {
-            console.error("Failed to load checkout", error);
-            router.navigate("/login");
-        }
+        this.setState({
+            user,
+            items: user.cart,
+            isLoading: false
+        });
     }
 
     render(): string {
@@ -206,8 +196,10 @@ export class Checkout extends Component<CheckoutState> {
     }
 
     protected addMove(): void {
-        this.attachQtyHandlers();
-        this.attachRemoveHandlers();
+        this.element.querySelector(".items-list")?.addEventListener("click", (event) => {
+            void this.handleItemsListClick(event);
+        });
+
         this.element.querySelector("#goBackToShop")?.addEventListener("click", () => {
             router.navigate("/#catalog");
         });
@@ -220,41 +212,54 @@ export class Checkout extends Component<CheckoutState> {
         }
     }
 
-    private attachQtyHandlers(): void {
-        const buttons = this.element.querySelectorAll(".qty-btn");
+    private async handleItemsListClick(event: Event): Promise<void> {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
 
-        buttons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                void this.updateQuantity(btn);
-            });
-        });
+        const quantityButton = target.closest(".qty-btn");
+        if (quantityButton) {
+            await this.updateQuantity(quantityButton);
+            return;
+        }
+
+        const removeButton = target.closest(".remove-btn");
+        if (removeButton) {
+            await this.removeItem(removeButton);
+        }
     }
 
     private async updateQuantity(btn: Element): Promise<void> {
         const id = Number(btn.getAttribute("data-id"));
         const action = btn.getAttribute("data-action");
 
-        const items = [...this.state.items];
-        const item = items.find(currentItem => currentItem.id === id);
+        const item = this.state.items.find(currentItem => currentItem.id === id);
         if (!item || !this.state.user) {
             return;
         }
 
-        if (action === "plus") item.quantity++;
-        if (action === "minus" && item.quantity > 1) item.quantity--;
+        const quantityDelta = action === "plus" ? 1 : action === "minus" ? -1 : 0;
+        if (quantityDelta === 0) {
+            return;
+        }
+
+        const nextQuantity = Math.max(1, item.quantity + quantityDelta);
+        if (nextQuantity === item.quantity) {
+            return;
+        }
 
         await this.persistUser({
-            cart: items
-        });
-    }
+            cart: this.state.items.map(currentItem => {
+                if (currentItem.id !== id) {
+                    return currentItem;
+                }
 
-    private attachRemoveHandlers(): void {
-        const buttons = this.element.querySelectorAll(".remove-btn");
-
-        buttons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                void this.removeItem(btn);
-            });
+                return {
+                    ...currentItem,
+                    quantity: nextQuantity
+                };
+            })
         });
     }
 

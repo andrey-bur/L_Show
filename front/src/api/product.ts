@@ -1,85 +1,47 @@
 import { Product } from "../interface/Product";
+import { requestJson } from "./http";
 
 const API_URL = "http://localhost:3000/product";
+
+async function getProducts(path = ""): Promise<Product[]> {
+  const data = await requestJson<Product[]>(`${API_URL}${path}`);
+  return data.map(product => new Product(product));
+}
+
 export const ProductService = {
   async getAll(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}})
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts("/");
   },
 
   async search(query: string): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts(`/search?q=${encodeURIComponent(query)}`);
   },
 
   async getByType(type: string): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/type/${encodeURIComponent(type)}`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts(`/type/${encodeURIComponent(type)}`);
   },
 
   async getPopular(isPopular: boolean): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/popular/${isPopular}`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts(`/popular/${isPopular}`);
   },
 
   async getByAvailability(inStock: boolean): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/availability/${inStock}`, { headers: {
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts(`/availability/${inStock}`);
   },
 
   async sortByPriceAsc(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/sort/price-asc`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts("/sort/price-asc");
   },
 
   async sortByPriceDesc(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/sort/price-desc`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts("/sort/price-desc");
   },
 
   async sortByName(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/sort/name`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts("/sort/name");
   },
 
   async sortByRating(): Promise<Product[]> {
-    const res = await fetch(`${API_URL}/sort/rating`,{headers:{
-  "X-Pinggy-No-Screen": "true",
-  "User-Agent": "vite-app"
-}});
-    const data: Product[] = await res.json();
-    return data.map(p => new Product(p));
+    return getProducts("/sort/rating");
   }
 };

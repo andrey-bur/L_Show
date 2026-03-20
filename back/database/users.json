@@ -9,6 +9,17 @@
     "cart": [],
     "deliveries": [
       {
+        "id": 1774043707839,
+        "createdAt": "2026-03-20T21:55:07.839Z",
+        "status": "Оформлен",
+        "address": "Минск, ул. Колесникова, 3",
+        "phone": "+375291234567",
+        "email": "ivan@mail.com",
+        "paymentMethod": "card",
+        "itemsCount": 2,
+        "total": 40500
+      },
+      {
         "id": 1774038392529,
         "createdAt": "2026-03-20T20:26:32.529Z",
         "status": "Оформлен",

@@ -2,12 +2,63 @@ import { readData } from "../../servires/database.servires"
 import { Product } from "../../../types/Product"
 
 const file = "products"
+type ProductSort = "price-asc" | "price-desc" | "name" | "rating"
 
 export type ProductQuery = {
   search?: string
   type?: string
   inStock?: boolean
-  sort?: "price-asc" | "price-desc" | "name" | "rating"
+  sort?: ProductSort
+}
+
+function matchesSearch(product: Product, search: string): boolean {
+  const normalizedSearch = search.trim().toLowerCase()
+
+  if (!normalizedSearch) {
+    return true
+  }
+
+  return (
+    product.name.toLowerCase().includes(normalizedSearch) ||
+    product.description.toLowerCase().includes(normalizedSearch) ||
+    product.categoryName.toLowerCase().includes(normalizedSearch) ||
+    product.country.toLowerCase().includes(normalizedSearch)
+  )
+}
+
+function sortProducts(products: Product[], sort?: ProductSort): Product[] {
+  switch (sort) {
+    case "price-asc":
+      return [...products].sort((a, b) => a.price - b.price)
+    case "price-desc":
+      return [...products].sort((a, b) => b.price - a.price)
+    case "name":
+      return [...products].sort((a, b) => a.name.localeCompare(b.name))
+    case "rating":
+      return [...products].sort((a, b) => b.rating - a.rating)
+    default:
+      return products
+  }
+}
+
+function applyProductQuery(products: Product[], query: ProductQuery): Product[] {
+  const filteredProducts = products.filter(product => {
+    if (query.search && !matchesSearch(product, query.search)) {
+      return false
+    }
+
+    if (query.type && product.categoryName !== query.type) {
+      return false
+    }
+
+    if (typeof query.inStock === "boolean" && product.inStock !== query.inStock) {
+      return false
+    }
+
+    return true
+  })
+
+  return sortProducts(filteredProducts, query.sort)
 }
 
 export async function getAllProducts(): Promise<Product[]> {
@@ -15,20 +66,11 @@ export async function getAllProducts(): Promise<Product[]> {
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  const value = query.toLowerCase()
-
-  return products.filter(p =>
-    p.name.toLowerCase().includes(value) ||
-    p.description.toLowerCase().includes(value) ||
-    p.categoryName.toLowerCase().includes(value) ||
-    p.country.toLowerCase().includes(value)
-  )
+  return getProductsByQuery({ search: query })
 }
 
 export async function filterProductsByType(type: string): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  return products.filter(p => p.categoryName === type)
+  return getProductsByQuery({ type })
 }
 
 export async function filterProductsByPopular(popular: boolean): Promise<Product[]> {
@@ -37,65 +79,26 @@ export async function filterProductsByPopular(popular: boolean): Promise<Product
 }
 
 export async function sortProductsByPriceAsc(): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  return products.sort((a, b) => a.price - b.price)
+  return getProductsByQuery({ sort: "price-asc" })
 }
 
 export async function sortProductsByPriceDesc(): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  return products.sort((a, b) => b.price - a.price)
+  return getProductsByQuery({ sort: "price-desc" })
 }
 
 export async function sortProductsByName(): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  return products.sort((a, b) => a.name.localeCompare(b.name))
+  return getProductsByQuery({ sort: "name" })
 }
 
 export async function sortProductsByRating(): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  return products.sort((a, b) => b.rating - a.rating)
+  return getProductsByQuery({ sort: "rating" })
 }
 
 export async function filterProductsByAvailability(inStock: boolean): Promise<Product[]> {
-  const products: Product[] = await readData<Product>(file)
-  return products.filter(product => product.inStock === inStock)
+  return getProductsByQuery({ inStock })
 }
 
 export async function getProductsByQuery(query: ProductQuery): Promise<Product[]> {
-  let products = await getAllProducts()
-
-  if (query.search) {
-    const normalizedSearch = query.search.toLowerCase()
-    products = products.filter(product =>
-      product.name.toLowerCase().includes(normalizedSearch) ||
-      product.description.toLowerCase().includes(normalizedSearch) ||
-      product.categoryName.toLowerCase().includes(normalizedSearch) ||
-      product.country.toLowerCase().includes(normalizedSearch)
-    )
-  }
-
-  if (query.type) {
-    products = products.filter(product => product.categoryName === query.type)
-  }
-
-  if (typeof query.inStock === "boolean") {
-    products = products.filter(product => product.inStock === query.inStock)
-  }
-
-  switch (query.sort) {
-    case "price-asc":
-      products.sort((a, b) => a.price - b.price)
-      break
-    case "price-desc":
-      products.sort((a, b) => b.price - a.price)
-      break
-    case "name":
-      products.sort((a, b) => a.name.localeCompare(b.name))
-      break
-    case "rating":
-      products.sort((a, b) => b.rating - a.rating)
-      break
-  }
-
-  return products
+  const products = await getAllProducts()
+  return applyProductQuery(products, query)
 }

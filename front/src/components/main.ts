@@ -1,4 +1,4 @@
-import { Component } from "../utils/Component";
+import { Component } from "../utils/Component/Component";
 import { Product } from "../interface/Product";
 import { CartItem, User } from "../interface/User";
 import { hasAuthHint, UserService } from "../api/user";
@@ -11,10 +11,13 @@ interface MainState {
     currentUser: User | null;
 }
 
+type ProductSort = "default" | "price-asc" | "price-desc" | "name" | "rating";
+type ProductAvailability = "all" | "true" | "false";
+
 export class Main extends Component<MainState> {
     private activeFilter = "all";
-    private activeAvailability = "all";
-    private activeSort = "default";
+    private activeAvailability: ProductAvailability = "all";
+    private activeSort: ProductSort = "default";
     private searchQuery = "";
     private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
     private isDocumentClickBound = false;
@@ -1059,44 +1062,62 @@ h1, h2, h3, h4 {
         `).join("");
     }
 
-    private getVisibleProducts(): Product[] {
-        let products = [...this.state.products];
+    private matchesActiveFilter(product: Product): boolean {
+        return this.activeFilter === "all" || product.categoryName === this.activeFilter;
+    }
 
-        if (this.activeFilter !== "all") {
-            products = products.filter(product => product.categoryName === this.activeFilter);
+    private matchesAvailability(product: Product): boolean {
+        if (this.activeAvailability === "all") {
+            return true;
         }
 
-        if (this.activeAvailability !== "all") {
-            const requiredAvailability = this.activeAvailability === "true";
-            products = products.filter(product => product.inStock === requiredAvailability);
-        }
+        return product.inStock === (this.activeAvailability === "true");
+    }
 
+    private matchesSearchQuery(product: Product): boolean {
         const normalizedQuery = this.searchQuery.trim().toLowerCase();
-        if (normalizedQuery) {
-            products = products.filter(product =>
-                product.name.toLowerCase().includes(normalizedQuery) ||
-                product.description.toLowerCase().includes(normalizedQuery) ||
-                product.categoryName.toLowerCase().includes(normalizedQuery) ||
-                product.country.toLowerCase().includes(normalizedQuery)
-            );
+
+        if (!normalizedQuery) {
+            return true;
         }
+
+        return (
+            product.name.toLowerCase().includes(normalizedQuery) ||
+            product.description.toLowerCase().includes(normalizedQuery) ||
+            product.categoryName.toLowerCase().includes(normalizedQuery) ||
+            product.country.toLowerCase().includes(normalizedQuery)
+        );
+    }
+
+    private sortVisibleProducts(products: Product[]): Product[] {
+        const nextProducts = [...products];
 
         switch (this.activeSort) {
             case "price-asc":
-                products.sort((a, b) => a.price - b.price);
+                nextProducts.sort((a, b) => a.price - b.price);
                 break;
             case "price-desc":
-                products.sort((a, b) => b.price - a.price);
+                nextProducts.sort((a, b) => b.price - a.price);
                 break;
             case "name":
-                products.sort((a, b) => a.name.localeCompare(b.name));
+                nextProducts.sort((a, b) => a.name.localeCompare(b.name));
                 break;
             case "rating":
-                products.sort((a, b) => b.rating - a.rating);
+                nextProducts.sort((a, b) => b.rating - a.rating);
                 break;
         }
 
-        return products;
+        return nextProducts;
+    }
+
+    private getVisibleProducts(): Product[] {
+        const filteredProducts = this.state.products.filter(product =>
+            this.matchesActiveFilter(product) &&
+            this.matchesAvailability(product) &&
+            this.matchesSearchQuery(product)
+        );
+
+        return this.sortVisibleProducts(filteredProducts);
     }
 
     private refreshCatalog(): void {
@@ -1387,7 +1408,7 @@ h1, h2, h3, h4 {
 
         select.value = this.activeAvailability;
         select.addEventListener("change", () => {
-            this.activeAvailability = select.value;
+            this.activeAvailability = select.value as ProductAvailability;
             this.refreshCatalog();
         });
     }
@@ -1398,7 +1419,7 @@ h1, h2, h3, h4 {
 
         select.value = this.activeSort;
         select.addEventListener("change", () => {
-            this.activeSort = select.value;
+            this.activeSort = select.value as ProductSort;
             this.refreshCatalog();
         });
     }
@@ -1464,22 +1485,24 @@ private async addToCart(product: Product): Promise<void> {
         return;
     }
 
-    const cart = [...currentUser.cart];
-
-    const existing = cart.find((item: CartItem) => item.id === product.id);
-
-    if (existing) {
-        existing.quantity++;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            image: product.image,
-            categoryName: product.categoryName,
-            price: product.price,
-            quantity: 1
-        });
-    }
+    const existing = currentUser.cart.find((item: CartItem) => item.id === product.id);
+    const cart = existing
+        ? currentUser.cart.map((item: CartItem) =>
+            item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+        )
+        : [
+            ...currentUser.cart,
+            {
+                id: product.id,
+                name: product.name,
+                image: product.image,
+                categoryName: product.categoryName,
+                price: product.price,
+                quantity: 1
+            }
+        ];
 
     try {
         await UserService.update(currentUser.id, { cart });
