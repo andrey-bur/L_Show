@@ -12,6 +12,9 @@ export interface Delivery {
   createdAt: string;
   status: string;
   address: string;
+  phone?: string;
+  email?: string;
+  paymentMethod?: string;
   itemsCount: number;
   total: number;
 }

@@ -1,9 +1,15 @@
+import { UserService } from "../api/user";
 import { Component } from "../utils/Component";
 import { router } from "../utils/router/router-instance";
 
-export class RegisterComponent extends Component<{}> {
+interface RegisterState {
+    isSubmitting: boolean;
+    error: string;
+}
+
+export class RegisterComponent extends Component<RegisterState> {
     constructor() {
-        super("div", {}, "auth-page-wrapper");
+        super("div", { isSubmitting: false, error: "" }, "auth-page-wrapper");
         this.applyStyles("auth-styles", this.buildStyles());
     }
 
@@ -22,7 +28,7 @@ export class RegisterComponent extends Component<{}> {
         .auth-container {
             display: flex;
             width: 100%;
-            max-width: 1100px; /* Немного шире для длинной формы */
+            max-width: 1100px;
             background: #ffffff;
             border-radius: 30px;
             overflow: hidden;
@@ -49,6 +55,8 @@ export class RegisterComponent extends Component<{}> {
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
+            user-select: none;
         }
 
         .auth-form-section {
@@ -68,7 +76,7 @@ export class RegisterComponent extends Component<{}> {
 
         .auth-form {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Поля в две колонки */
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
@@ -124,10 +132,22 @@ export class RegisterComponent extends Component<{}> {
             transform: translateY(-2px);
         }
 
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+            transform: none;
+        }
+
+        .auth-error {
+            grid-column: span 2;
+            color: #a52a2a;
+            font-size: 0.95rem;
+        }
+
         .auth-footer {
             margin-top: 30px;
             text-align: center;
-            grid-column: span 2; 
+            grid-column: span 2;
             color: #666;
             font-size: 0.95rem;
             font-family: 'Inter', sans-serif;
@@ -145,7 +165,7 @@ export class RegisterComponent extends Component<{}> {
         }
 
         #goLogin:hover {
-            color: #a52a2a; 
+            color: #a52a2a;
         }
 
         #goLogin::after {
@@ -160,12 +180,24 @@ export class RegisterComponent extends Component<{}> {
         }
 
         #goLogin:hover::after {
-            width: 100%; 
+            width: 100%;
         }
-            .auth-decor .logo-big {
-                cursor: pointer; 
-                user-select: none;
+
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
             }
+
+            .auth-form {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group.full-width,
+            .submit-btn,
+            .auth-error {
+                grid-column: span 1;
+            }
+        }
         `;
     }
 
@@ -183,28 +215,34 @@ export class RegisterComponent extends Component<{}> {
                 <div class="auth-form-section">
                     <div class="auth-header">
                         <h2>Регистрация</h2>
-                        <p style="color: #666; margin-bottom: 30px;">Создайте аккаунт для доступа к коллекции</p>
+                        <p style="color: #666; margin-bottom: 30px;">Создайте аккаунт и получите активную корзину и доставки в профиле.</p>
                     </div>
 
-                    <form id="registerForm" class="auth-form">
+                    <form id="registerForm" class="auth-form" data-registration>
                         <div class="input-group">
                             <label for="reg-name">Ваше имя</label>
                             <input id="reg-name" type="text" placeholder="Иван Петров" required>
                         </div>
                         <div class="input-group">
-                            <label for="reg-phone">Телефон</label>
-                            <input id="reg-phone" type="tel" placeholder="+7 (999) 000-00-00" required>
+                            <label for="reg-login">Логин</label>
+                            <input id="reg-login" type="text" placeholder="ivan_petrov" required>
                         </div>
-                        <div class="input-group full-width">
+                        <div class="input-group">
+                            <label for="reg-phone">Телефон</label>
+                            <input id="reg-phone" type="tel" placeholder="+375 (29) 000-00-00" required>
+                        </div>
+                        <div class="input-group">
                             <label for="reg-email">Электронная почта</label>
                             <input id="reg-email" type="email" placeholder="mail@example.com" required>
                         </div>
                         <div class="input-group full-width">
                             <label for="reg-password">Придумайте пароль</label>
-                            <input id="reg-password" type="password" placeholder="••••••••" required>
+                            <input id="reg-password" type="password" placeholder="••••••••" minlength="4" required>
                         </div>
-                        
-                        <button type="submit" class="submit-btn">Создать профиль</button>
+                        ${this.state.error ? `<div class="auth-error">${this.state.error}</div>` : ""}
+                        <button type="submit" class="submit-btn" ${this.state.isSubmitting ? "disabled" : ""}>
+                            ${this.state.isSubmitting ? "Создаём..." : "Создать профиль"}
+                        </button>
                     </form>
 
                     <div class="auth-footer">
@@ -214,12 +252,9 @@ export class RegisterComponent extends Component<{}> {
             </div>
         `;
     }
-    protected addMove(): void {
-        this.afterRender();
-    }
 
-    afterRender() {
-        const form = this.element.querySelector("#registerForm") as HTMLFormElement;
+    protected addMove(): void {
+        const form = this.element.querySelector("#registerForm");
         const logo = this.element.querySelector(".logo-big");
         const goLogin = this.element.querySelector("#goLogin");
 
@@ -227,21 +262,55 @@ export class RegisterComponent extends Component<{}> {
             router.navigate("/");
         });
 
-        form?.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const name = (this.element.querySelector("#reg-name") as HTMLInputElement).value;
-            const phone = (this.element.querySelector("#reg-phone") as HTMLInputElement).value;
-            const email = (this.element.querySelector("#reg-email") as HTMLInputElement).value;
-            const password = (this.element.querySelector("#reg-password") as HTMLInputElement).value;
-
-            console.log("Данные регистрации:", { name, phone, email, password });
-
-            router.navigate("/login"); 
-        });
-
         goLogin?.addEventListener("click", () => {
             router.navigate("/login");
         });
+
+        if (form instanceof HTMLFormElement) {
+            form.addEventListener("submit", (event) => {
+                void this.handleSubmit(event);
+            });
+        }
+    }
+
+    private async handleSubmit(event: Event): Promise<void> {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        if (!(form instanceof HTMLFormElement) || this.state.isSubmitting) {
+            return;
+        }
+
+        const name = (this.element.querySelector("#reg-name") as HTMLInputElement | null)?.value.trim() ?? "";
+        const login = (this.element.querySelector("#reg-login") as HTMLInputElement | null)?.value.trim() ?? "";
+        const phone = (this.element.querySelector("#reg-phone") as HTMLInputElement | null)?.value.trim() ?? "";
+        const email = (this.element.querySelector("#reg-email") as HTMLInputElement | null)?.value.trim() ?? "";
+        const password = (this.element.querySelector("#reg-password") as HTMLInputElement | null)?.value.trim() ?? "";
+
+        if (!name || !login || !phone || !email || !password) {
+            this.setState({ error: "Заполните все поля" });
+            return;
+        }
+
+        this.setState({ isSubmitting: true, error: "" });
+
+        try {
+            await UserService.register({
+                name,
+                login,
+                phone,
+                email,
+                password
+            });
+            router.navigate("/");
+        } catch (error) {
+            this.setState({
+                isSubmitting: false,
+                error: error instanceof Error ? error.message : "Ошибка регистрации"
+            });
+            return;
+        }
+
+        this.setState({ isSubmitting: false, error: "" });
     }
 }

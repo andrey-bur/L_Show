@@ -1,13 +1,18 @@
+import { UserService } from "../api/user";
 import { Component } from "../utils/Component";
 import { router } from "../utils/router/router-instance";
 
-export class AuthComponent extends Component<{}> {
+interface AuthState {
+    isSubmitting: boolean;
+    error: string;
+}
+
+export class AuthComponent extends Component<AuthState> {
     constructor() {
-        super("div", {}, "auth-page-wrapper");
+        super("div", { isSubmitting: false, error: "" }, "auth-page-wrapper");
         this.applyStyles("auth-styles", this.buildStyles());
     }
 
-    // ====================== СТИЛИ (Дизайнерские) ======================
     private buildStyles(): string {
         return `
         .auth-page-wrapper {
@@ -15,7 +20,6 @@ export class AuthComponent extends Component<{}> {
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Глубокий, сложный фон: градиент от очень темного к почти черному */
             background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
             padding: 40px 20px;
             font-family: 'Inter', sans-serif;
@@ -25,14 +29,13 @@ export class AuthComponent extends Component<{}> {
             display: flex;
             width: 100%;
             max-width: 1000px;
-            background: #ffffff; /* Сама форма — чистая и светлая */
+            background: #ffffff;
             border-radius: 30px;
             overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5); /* Глубокая тени для объема */
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
             position: relative;
         }
 
-        /* Левая часть: Декоративная панель */
         .auth-decor {
             flex: 1;
             background: linear-gradient(rgba(45, 0, 5, 0.85), rgba(10, 10, 10, 0.95)),
@@ -53,10 +56,12 @@ export class AuthComponent extends Component<{}> {
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
+            user-select: none;
         }
 
         .auth-decor .logo-big i {
-            color: #e0c3fc; /* Нежный, благородный оттенок */
+            color: #e0c3fc;
         }
 
         .auth-decor p {
@@ -66,7 +71,6 @@ export class AuthComponent extends Component<{}> {
             max-width: 320px;
         }
 
-        /* Правая часть: Форма входа */
         .auth-form-section {
             flex: 1.2;
             padding: 80px 60px;
@@ -98,10 +102,6 @@ export class AuthComponent extends Component<{}> {
             gap: 25px;
         }
 
-        .input-group {
-            position: relative;
-        }
-
         .input-group label {
             display: block;
             font-size: 0.85rem;
@@ -126,13 +126,13 @@ export class AuthComponent extends Component<{}> {
 
         .auth-form input:focus {
             outline: none;
-            border-color: #2d0005; /* Цвет глубокого вина */
+            border-color: #2d0005;
             background: #ffffff;
             box-shadow: 0 0 0 4px rgba(45, 0, 5, 0.1);
         }
 
         .submit-btn {
-            background: #1a1a1a; /* Элегантный черный */
+            background: #1a1a1a;
             color: #ffffff;
             padding: 18px;
             border: none;
@@ -146,9 +146,22 @@ export class AuthComponent extends Component<{}> {
         }
 
         .submit-btn:hover {
-            background: #2d0005; /* Меняется на винный при наведении */
+            background: #2d0005;
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(45, 0, 5, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .auth-error {
+            margin-top: -8px;
+            color: #a52a2a;
+            font-size: 0.95rem;
         }
 
         .auth-footer {
@@ -168,11 +181,10 @@ export class AuthComponent extends Component<{}> {
         }
 
         #goRegister:hover {
-            color: #a52a2a; /* Более светлый винный */
+            color: #a52a2a;
             text-decoration: underline;
         }
 
-        /* Адаптивность для мобильных устройств */
         @media (max-width: 768px) {
             .auth-container {
                 flex-direction: column;
@@ -180,7 +192,7 @@ export class AuthComponent extends Component<{}> {
             }
             .auth-decor {
                 padding: 40px;
-                order: 2; /* Перемещаем декоративную панель вниз */
+                order: 2;
             }
             .auth-decor .logo-big {
                 font-size: 2rem;
@@ -193,14 +205,9 @@ export class AuthComponent extends Component<{}> {
                 font-size: 2.2rem;
             }
         }
-            .auth-decor .logo-big {
-                cursor: pointer; 
-                user-select: none;
-            }
         `;
     }
 
-    // ====================== РЕНДЕР (Эстетичный) ======================
     render(): string {
         return `
             <div class="auth-container">
@@ -215,19 +222,22 @@ export class AuthComponent extends Component<{}> {
                 <div class="auth-form-section">
                     <div class="auth-header">
                         <h2>Вход</h2>
-                        <p>Пожалуйста, введите ваши данные для доступа к аккаунту.</p>
+                        <p>Введите имя, email, логин или телефон и пароль.</p>
                     </div>
 
                     <form id="loginForm" class="auth-form">
                         <div class="input-group">
-                            <label for="email">Электронная почта</label>
-                            <input id="email" type="email" placeholder="your.email@example.com" required>
+                            <label for="identifier">Имя / Email / Логин / Телефон</label>
+                            <input id="identifier" type="text" placeholder="ivan, ivan@mail.com, +375..." required>
                         </div>
                         <div class="input-group">
                             <label for="password">Пароль</label>
                             <input id="password" type="password" placeholder="••••••••" required>
                         </div>
-                        <button type="submit" class="submit-btn">Войти в личный кабинет</button>
+                        ${this.state.error ? `<div class="auth-error">${this.state.error}</div>` : ""}
+                        <button type="submit" class="submit-btn" ${this.state.isSubmitting ? "disabled" : ""}>
+                            ${this.state.isSubmitting ? "Входим..." : "Войти в личный кабинет"}
+                        </button>
                     </form>
 
                     <div class="auth-footer">
@@ -237,12 +247,9 @@ export class AuthComponent extends Component<{}> {
             </div>
         `;
     }
-    protected addMove(): void {
-        this.afterRender();
-    }
 
-    afterRender() {
-        const form = this.element.querySelector("#loginForm") as HTMLFormElement;
+    protected addMove(): void {
+        const form = this.element.querySelector("#loginForm");
         const logo = this.element.querySelector(".logo-big");
         const goRegister = this.element.querySelector("#goRegister");
 
@@ -250,24 +257,46 @@ export class AuthComponent extends Component<{}> {
             router.navigate("/");
         });
 
-        form?.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const emailInput = this.element.querySelector("#email") as HTMLInputElement;
-            const email = emailInput?.value || "";
-
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("userEmail", email);
-
-            window.dispatchEvent(new CustomEvent("authChange", {
-                detail: { isLoggedIn: true, userEmail: email }
-            }));
-
-            router.navigate("/");
-        });
-
         goRegister?.addEventListener("click", () => {
             router.navigate("/register");
         });
+
+        if (form instanceof HTMLFormElement) {
+            form.addEventListener("submit", (event) => {
+                void this.handleSubmit(event);
+            });
+        }
+    }
+
+    private async handleSubmit(event: Event): Promise<void> {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        if (!(form instanceof HTMLFormElement) || this.state.isSubmitting) {
+            return;
+        }
+
+        const identifier = (this.element.querySelector("#identifier") as HTMLInputElement | null)?.value.trim() ?? "";
+        const password = (this.element.querySelector("#password") as HTMLInputElement | null)?.value.trim() ?? "";
+
+        if (!identifier || !password) {
+            this.setState({ error: "Заполните логин и пароль" });
+            return;
+        }
+
+        this.setState({ isSubmitting: true, error: "" });
+
+        try {
+            await UserService.login({ identifier, password });
+            router.navigate("/");
+        } catch (error) {
+            this.setState({
+                isSubmitting: false,
+                error: error instanceof Error ? error.message : "Ошибка входа"
+            });
+            return;
+        }
+
+        this.setState({ isSubmitting: false, error: "" });
     }
 }

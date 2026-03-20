@@ -38,9 +38,23 @@ export class Router {
     }
 
     public navigate(path: string): void {
-        if (window.location.pathname === path) return;
-        window.history.pushState({}, "", path);
-        this.handleRoute(); 
+        const targetUrl = new URL(path, window.location.origin);
+        const nextPathname = targetUrl.pathname;
+        const nextHash = targetUrl.hash;
+
+        const isSamePath = window.location.pathname === nextPathname;
+        const isSameHash = window.location.hash === nextHash;
+
+        if (isSamePath && isSameHash) return;
+
+        window.history.pushState({}, "", `${nextPathname}${nextHash}`);
+
+        if (isSamePath) {
+            this.scrollToHash(nextHash);
+            return;
+        }
+
+        this.handleRoute();
     }
 
     private handleRoute(): void {
@@ -58,7 +72,21 @@ export class Router {
         this.container.innerHTML = "";
 
         this.currentComponent = new Constructor();
-        this.currentComponent.mount(this.container); 
+        this.currentComponent.mount(this.container);
+        this.scrollToHash(window.location.hash);
+    }
+
+    private scrollToHash(hash: string): void {
+        if (!hash) {
+            window.scrollTo({ top: 0, behavior: "auto" });
+            return;
+        }
+
+        const id = decodeURIComponent(hash.slice(1));
+        const target = document.getElementById(id);
+        if (!target) return;
+
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     public start(): void {

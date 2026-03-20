@@ -1,4 +1,4 @@
-import { UserService } from "../api/user";
+import { hasAuthHint, UserService } from "../api/user";
 import { User } from "../interface/User";
 import { Component } from "../utils/Component";
 import { router } from "../utils/router/router-instance";
@@ -41,6 +41,11 @@ export class Profile extends Component<ProfileState> {
     }
 
     private async init(): Promise<void> {
+        if (!hasAuthHint()) {
+            router.navigate("/login");
+            return;
+        }
+
         try {
             const user = await UserService.getCurrent();
 
@@ -114,8 +119,8 @@ export class Profile extends Component<ProfileState> {
 
         return `
             <div class="container">
-                <button class="back-btn" id="goBack" type="button">
-                    <i class="fas fa-arrow-left"></i> Вернуться в магазин
+                <button class="back-btn" id="goHome" type="button">
+                    <i class="fas fa-home"></i> Вернуться в магазин
                 </button>
 
                 <div class="profile-layout">
@@ -172,6 +177,21 @@ export class Profile extends Component<ProfileState> {
                             <input id="profile-email" type="email" name="email" value="${safeUser.email}" required>
                         </div>
 
+                        <div class="form-group">
+                            <label for="profile-login">Логин</label>
+                            <input id="profile-login" type="text" name="login" value="${safeUser.login}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profile-phone">Телефон</label>
+                            <input id="profile-phone" type="tel" name="phone" value="${safeUser.phone}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profile-old-password">Текущий пароль</label>
+                            <input id="profile-old-password" type="password" name="oldPassword" minlength="4" required>
+                        </div>
+
                         <button type="button" class="change-pass-btn" id="togglePassword">
                             ${isPasswordFieldsOpen ? "Не менять пароль" : "Изменить пароль"}
                         </button>
@@ -198,7 +218,7 @@ export class Profile extends Component<ProfileState> {
     }
 
     protected addMove(): void {
-        this.element.querySelector("#goBack")?.addEventListener("click", () => {
+        this.element.querySelector("#goHome")?.addEventListener("click", () => {
             router.navigate("/");
         });
 
@@ -249,11 +269,14 @@ export class Profile extends Component<ProfileState> {
         const formData = new FormData(form);
         const name = String(formData.get("name") ?? "").trim();
         const email = String(formData.get("email") ?? "").trim();
+        const login = String(formData.get("login") ?? "").trim();
+        const phone = String(formData.get("phone") ?? "").trim();
+        const oldPassword = String(formData.get("oldPassword") ?? "").trim();
         const newPassword = String(formData.get("newPassword") ?? "").trim();
         const confirmPassword = String(formData.get("confirmPassword") ?? "").trim();
 
-        if (!name || !email) {
-            alert("Заполните имя и email");
+        if (!name || !email || !login || !phone || !oldPassword) {
+            alert("Заполните имя, email, логин, телефон и текущий пароль");
             return;
         }
 
@@ -274,14 +297,20 @@ export class Profile extends Component<ProfileState> {
         try {
             const updatePayload: Partial<User> = {
                 name,
-                email
+                email,
+                login,
+                phone
+            };
+            const requestPayload = {
+                ...updatePayload,
+                oldPassword
             };
 
             if (this.state.isPasswordFieldsOpen && newPassword) {
-                updatePayload.password = newPassword;
+                requestPayload.password = newPassword;
             }
 
-            await UserService.update(this.state.user.id, updatePayload);
+            await UserService.update(this.state.user.id, requestPayload);
 
             const freshUser = await UserService.getCurrent();
             const nextUser = freshUser ?? new User({
@@ -300,7 +329,8 @@ export class Profile extends Component<ProfileState> {
         } catch (error) {
             console.error("Profile update failed", error);
             this.setState({ isSaving: false });
-            alert("Ошибка при обновлении данных");
+            const message = error instanceof Error ? error.message : "Ошибка при обновлении данных";
+            alert(message);
         }
     }
 }

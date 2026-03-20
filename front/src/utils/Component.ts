@@ -40,10 +40,13 @@ export abstract class Component<T extends object> {
     }
 
     public unmount(): void {
+        this.beforeUnmount();
         this.element.remove();
     }
 
     protected addMove(): void { }
+
+    protected beforeUnmount(): void { }
 
     public getElement(): HTMLElement {
         return this.element;

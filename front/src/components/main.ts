@@ -1,32 +1,69 @@
 import { Component } from "../utils/Component";
 import { Product } from "../interface/Product";
+import { CartItem, User } from "../interface/User";
+import { hasAuthHint, UserService } from "../api/user";
 import { ProductService } from "../api/product";
-import {router} from "../utils/router/router-instance"
+import { router } from "../utils/router/router-instance";
 
 interface MainState {
     products: Product[];
     isLoggedIn: boolean;
-    isSearchOpen: boolean;
-    isProfileOpen: boolean;
+    currentUser: User | null;
 }
 
 export class Main extends Component<MainState> {
+    private activeFilter = "all";
+    private activeAvailability = "all";
+    private activeSort = "default";
+    private searchQuery = "";
+    private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+    private isDocumentClickBound = false;
+
     constructor() {
         super("div", {
             products: [],
-            isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
-            isSearchOpen: false,
-            isProfileOpen: false
+            isLoggedIn: false,
+            currentUser: null
         }, "page-wrapper");
 
         this.applyStyles("main-styles", this.buildStyles());
-        this.loadProducts();
+        void this.init();
     }
 
-    private async loadProducts() {
-        const products = await ProductService.getAll();
-        this.state.products = products; 
-        this.updateCatalog(products);
+    private async init(): Promise<void> {
+        const [productsResult, userResult] = await Promise.allSettled([
+            ProductService.getAll(),
+            this.loadCurrentUser()
+        ]);
+
+        const products = productsResult.status === "fulfilled" ? productsResult.value : [];
+        if (productsResult.status === "rejected") {
+            console.error("Failed to load products", productsResult.reason);
+        }
+
+        const currentUser = userResult.status === "fulfilled" ? userResult.value : null;
+        if (userResult.status === "rejected") {
+            console.error("Failed to load current user", userResult.reason);
+        }
+
+        this.setState({
+            products,
+            currentUser,
+            isLoggedIn: Boolean(currentUser)
+        });
+    }
+
+    private async loadCurrentUser(): Promise<User | null> {
+        if (!hasAuthHint()) {
+            return null;
+        }
+
+        try {
+            return await UserService.getCurrent();
+        } catch (error) {
+            console.error("Failed to load current user", error);
+            return null;
+        }
     }
 
     // ====================== СТИЛИ ======================
@@ -234,6 +271,7 @@ h1, h2, h3, h4 {
     background: var(--bg-hover);
 }
 
+
 /* Profile dropdown */
 .profile-wrapper { position: relative; }
 
@@ -316,8 +354,8 @@ h1, h2, h3, h4 {
 
 /* Search panel */
 .search-overlay {
-    position: absolute;
-    top: 80px;
+    position: fixed;
+    top: 80px;          /* под хедером */
     left: 0;
     right: 0;
     background: var(--bg-secondary);
@@ -327,7 +365,7 @@ h1, h2, h3, h4 {
     visibility: hidden;
     transform: translateY(-8px);
     transition: var(--transition);
-    z-index: 900;
+    z-index: 900;       /* ниже хедера, выше контента */
 }
 
 .search-overlay.active {
@@ -335,6 +373,7 @@ h1, h2, h3, h4 {
     visibility: visible;
     transform: translateY(0);
 }
+
 
 .search-container {
     max-width: 800px;
@@ -467,6 +506,8 @@ h1, h2, h3, h4 {
     overflow: hidden;
     position: relative;
     transition: var(--transition);
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card:hover {
@@ -502,6 +543,10 @@ h1, h2, h3, h4 {
 
 .product-info {
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
 }
 
 .product-category {
@@ -514,7 +559,23 @@ h1, h2, h3, h4 {
 
 .product-title {
     font-size: 1rem;
-    margin-bottom: 8px;
+    line-height: 1.35;
+    min-height: 2.7em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    min-height: 2.8em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .product-meta {
@@ -522,7 +583,7 @@ h1, h2, h3, h4 {
     justify-content: space-between;
     font-size: 0.85rem;
     color: var(--text-secondary);
-    margin-bottom: 10px;
+    min-height: 1.4em;
 }
 
 .product-rating {
@@ -534,13 +595,36 @@ h1, h2, h3, h4 {
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid var(--border);
-    padding-top: 10px;
+    padding-top: 12px;
+    margin-top: auto;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .product-price {
     font-size: 1.1rem;
     font-weight: 700;
+}
+
+.stock-badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: rgba(20, 20, 20, 0.5);
+    align-self: flex-start;
+    margin-bottom: 2px;
+}
+
+.stock-badge.in-stock {
+    color: #8ff0a4;
+    border-color: #2f8f46;
+}
+
+.stock-badge.out-of-stock {
+    color: #ff9f9f;
+    border-color: #9c4242;
 }
 
 .add-to-cart-btn {
@@ -556,6 +640,11 @@ h1, h2, h3, h4 {
     justify-content: center;
     gap: 6px;
     cursor: pointer;
+}
+
+.add-to-cart-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
 }
 
 /* Popular */
@@ -678,9 +767,9 @@ h1, h2, h3, h4 {
 }
     /* ====================== СТИЛИ ФУТЕРА ====================== */
 
-.footer-grid {
+.footer-3col {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr; /* Пропорции как в вашем коде */
+    grid-template-columns: 2fr 1fr 1fr; /* бренд + два блока справа */
     gap: 40px;
     margin-bottom: 40px;
 }
@@ -777,89 +866,114 @@ h1, h2, h3, h4 {
     protected addMove(): void {
         this.attachSearchEvents();
         this.attachProfileEvents();
+        this.attachOutsideClickHandler();
         this.attachFilters();
+        this.attachAvailabilitySelect();
         this.attachSort();
         this.attachSearchInput();
-        this.attachCartButton();
         this.attachAuthNavigation();
-        this.updateCatalog(this.state.products);
+        this.attachAddToCartHandlers();
+        this.refreshCatalog();
+        this.updateCartBadge();
     }
+
+    protected beforeUnmount(): void {
+        if (this.isDocumentClickBound) {
+            document.removeEventListener("click", this.handleDocumentClick);
+            this.isDocumentClickBound = false;
+        }
+
+        if (this.searchDebounceTimer) {
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = null;
+        }
+    }
+
 
     // ====================== ХЕДЕР ======================
     private renderHeader(): string {
-        return `
-        <header class="header">
-            <div class="container">
-                <nav class="nav">
-                    <a href="/" class="logo">
-                        <i class="fas fa-wine-bottle"></i>
-                        <span>Wine & Spirits</span>
-                    </a>
+    const user = this.state.currentUser;
+    const userName = user?.name || "Гость";
+    const userEmail = user?.email || "Войдите в аккаунт";
+    const cartCount = this.getCartCount();
 
-                    <ul class="nav-links">
-                        <li><a href="catalog">Каталог</a></li>
-                        <li><a href="popular">Популярное</a></li>
-                        <li><a href="about">О нас</a></li>
-                        <li><a href="contacts">Контакты</a></li>
-                    </ul>
+    return `
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">
+                    <i class="fas fa-wine-bottle"></i>
+                    <span>Wine & Spirits</span>
+                </a>
 
-                    <div class="header-actions">
-                        <button class="search-btn" id="searchToggle">
-                            <i class="fas fa-search"></i>
+                <ul class="nav-links">
+                    <li><a href="/#catalog">Каталог</a></li>
+                    <li><a href="/#popular">Популярное</a></li>
+                    <li><a href="/#about">О нас</a></li>
+                    <li><a href="/#contacts">Контакты</a></li>
+                </ul>
+
+                <div class="header-actions">
+                    <button class="search-btn" id="searchToggle">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    ${!this.state.isLoggedIn ? `
+                        <button class="login-btn" id="loginBtn">Войти</button>
+                        <button class="register-btn" id="registerBtn">Регистрация</button>
+                    ` : ""}     
+
+                    <div class="profile-wrapper">
+                        <button class="profile-btn" id="profileBtn">
+                            <i class="fas fa-user"></i>
                         </button>
 
-                        ${!this.state.isLoggedIn ? `
-                            <button class="login-btn" id="loginBtn">Войти</button>
-                            <button class="register-btn" id="registerBtn">Регистрация</button>
-                        ` : ""}     
-
-                        <div class="profile-wrapper">
-                            <button class="profile-btn" id="profileBtn">
-                                <i class="fas fa-user"></i>
-                            </button>
-
-                            <div class="profile-dropdown" id="profileDropdown">
-                                <div class="profile-header">
-                                    <div class="profile-avatar">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div class="profile-info">
-                                        <h4>Пользователь</h4>
-                                        <span>${localStorage.getItem("userEmail") || "email@example.com"}</span>
-                                    </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user"></i>
                                 </div>
-
-                                <ul class="profile-menu">
-                                    <li><a href="#"><i class="fas fa-user-circle"></i> Личный кабинет</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
-                                </ul>
+                                <div class="profile-info">
+                                    <h4>${userName}</h4>
+                                    <span>${userEmail}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        ${this.state.isLoggedIn ? `
-                        <button class="cart-btn" id="cartBtn">
-                            <i class="fas fa-shopping-bag"></i>
-                            <span class="cart-badge">0</span> 
-                        </button>    ` : ""}
+                            <ul class="profile-menu">
+                                <li><a href="#" id="goProfile"><i class="fas fa-user-circle"></i> Личный кабинет</a></li>
+                                <li><a href="#" id="goCheckout"><i class="fas fa-shopping-bag"></i> Корзина: ${cartCount}</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                            </ul>
+                        </div>
                     </div>
-                </nav>
-            </div>
-        </header>
-        `;
-    }
+
+                    ${this.state.isLoggedIn ? `
+                    <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-badge">${cartCount}</span> 
+                    </button>
+` : ""}
+                </div>
+            </nav>
+        </div>
+    </header>
+    `;
+}
+
 
     // ====================== ПОИСК ======================
     private renderSearchPanel(): string {
-        return `
-        <div class="search-overlay ${this.state.isSearchOpen ? "active" : ""}" id="searchOverlay">
+    return `
+        <div class="search-overlay" id="searchOverlay">
             <div class="search-container">
                 <input type="text" placeholder="Поиск по стране названию категории" id="searchInput">
                 <button class="close-search" id="closeSearch"><i class="fas fa-times"></i></button>
             </div>
         </div>
-        `;
-    }
+    `;
+}
+
 
     // ====================== HERO ======================
     private renderHero(): string {
@@ -894,10 +1008,16 @@ h1, h2, h3, h4 {
                         <button class="filter-btn" data-filter="Шампанское">Шампанское</button>
                     </div>
 
+                    <select class="sort-select" id="availabilitySelect">
+                        <option value="all">Наличие: любое</option>
+                        <option value="true">Только в наличии</option>
+                        <option value="false">Только отсутствующие</option>
+                    </select>
+
                     <select class="sort-select" id="sortSelect">
                         <option value="default">Сортировка</option>
-                        <option value="price-asc">Цена ↑</option>
-                        <option value="price-desc">Цена ↓</option>
+                        <option value="price-asc">Дёшево</option>
+                        <option value="price-desc">Дорого</option>
                         <option value="name">Название</option>
                         <option value="rating">Рейтинг</option>
                     </select>
@@ -919,22 +1039,75 @@ h1, h2, h3, h4 {
                     <img src="${p.image}" alt="${p.name}" >
                 </div>
                 <div class="product-info">
+                    <span class="stock-badge ${p.inStock ? "in-stock" : "out-of-stock"}">${p.inStock ? "В наличии" : "Нет в наличии"}</span>
                     <div class="product-category">${p.categoryName}</div>
-                    <h3 class="product-title">${p.name}</h3>
+                    <h3 class="product-title" data-title>${p.name}</h3>
+                    <p class="product-description">${p.description}</p>
                     <div class="product-meta">
                         <span>${p.country} • ${p.volume}</span>
                         <span class="product-rating"><i class="fas fa-star"></i> ${p.rating}</span>
                     </div>
                     <div class="product-footer">
-                        <span class="product-price">${p.price.toLocaleString()} ₽</span>
-                        <button class="add-to-cart-btn">
+                        <span class="product-price" data-price>${p.price.toLocaleString()} ₽</span>
+                        <button class="add-to-cart-btn" data-id="${p.id}" ${p.inStock ? "" : "disabled"}>
                             <i class="fas fa-shopping-bag"></i>
-                            <span>В корзину</span>
+                            <span>${p.inStock ? "В корзину" : "Недоступно"}</span>
                         </button>
                     </div>
                 </div>
             </div>
         `).join("");
+    }
+
+    private getVisibleProducts(): Product[] {
+        let products = [...this.state.products];
+
+        if (this.activeFilter !== "all") {
+            products = products.filter(product => product.categoryName === this.activeFilter);
+        }
+
+        if (this.activeAvailability !== "all") {
+            const requiredAvailability = this.activeAvailability === "true";
+            products = products.filter(product => product.inStock === requiredAvailability);
+        }
+
+        const normalizedQuery = this.searchQuery.trim().toLowerCase();
+        if (normalizedQuery) {
+            products = products.filter(product =>
+                product.name.toLowerCase().includes(normalizedQuery) ||
+                product.description.toLowerCase().includes(normalizedQuery) ||
+                product.categoryName.toLowerCase().includes(normalizedQuery) ||
+                product.country.toLowerCase().includes(normalizedQuery)
+            );
+        }
+
+        switch (this.activeSort) {
+            case "price-asc":
+                products.sort((a, b) => a.price - b.price);
+                break;
+            case "price-desc":
+                products.sort((a, b) => b.price - a.price);
+                break;
+            case "name":
+                products.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case "rating":
+                products.sort((a, b) => b.rating - a.rating);
+                break;
+        }
+
+        return products;
+    }
+
+    private refreshCatalog(): void {
+        this.updateCatalog(this.getVisibleProducts());
+    }
+
+    private scrollToCatalog(): void {
+        const catalog = this.element.querySelector("#catalog");
+        if (catalog instanceof HTMLElement) {
+            catalog.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     }
 
     // ====================== POPULAR ======================
@@ -1041,59 +1214,61 @@ h1, h2, h3, h4 {
 
     // ====================== FOOTER ======================
     private renderFooter(): string {
-        return `
-        <footer class="footer" id="contacts">
-            <div class="container">
-                <div class="footer-grid">
-                    <div class="footer-brand">
-                        <a href="/" class="logo">
-                            <i class="fas fa-wine-bottle"></i>
-                            <span>Wine & Spirits</span>
-                        </a>
-                        <p>Премиальный алкоголь для ценителей. Только лучшие напитки со всего мира.</p>
-                    </div>
+    return `
+    <footer class="footer" id="contacts">
+        <div class="container">
+            <div class="footer-grid footer-3col">
 
-                    <div class="footer-links">
-                        <h4>Навигация</h4>
-                        <ul>
-                            <li><a href="#catalog">Каталог</a></li>
-                            <li><a href="#popular">Популярное</a></li>
-                            <li><a href="#about">О нас</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="footer-links">
-                        <h4>Информация</h4>
-                        <ul>
-                            <li><a href="#">Доставка</a></li>
-                            <li><a href="#">Оплата</a></li>
-                            <li><a href="#">Возврат</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="footer-links">
-                        <h4>Контакты</h4>
-                        <ul>
-                            <li><a href="tel:+79999999999">+7 (999) 999-99-99</a></li>
-                            <li><a href="mailto:info@example.com">info@example.com</a></li>
-                            <li><a href="#">г. Москва, ул. Примерная, 1</a></li>
-                        </ul>
-                    </div>
+                <!-- Бренд -->
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <i class="fas fa-wine-bottle"></i>
+                        <span>Wine & Spirits</span>
+                    </a>
+                    <p>Премиальный алкоголь для ценителей. Лучшие напитки со всего мира.</p>
                 </div>
 
-                <div class="footer-bottom">
-                    <span>© ${new Date().getFullYear()} Wine & Spirits</span>
-                    <span>18+ Продажа алкоголя только совершеннолетним</span>
+                <!-- О компании -->
+                <div class="footer-links">
+                    <h4>О компании</h4>
+                    <ul>
+                        <li><span>Работаем с 2015 года</span></li>
+                        <li><span>Сертифицированные поставщики</span></li>
+                        <li><span>Контроль качества продукции</span></li>
+                    </ul>
                 </div>
+
+                <!-- Контакты -->
+                <div class="footer-links">
+                    <h4>Контакты</h4>
+                    <ul>
+                        <li><a href="tel:+3754499999999">+375 (44) 999‑99‑99</a></li>
+                        <li><a href="mailto:info@beer6769.com">info@beer6769.com</a></li>
+                        <li><span>г. Минск, ул. Колесникова, 3</span></li>
+                    </ul>
+                </div>
+
             </div>
-        </footer>
-        `;
-    }
+
+            <div class="footer-bottom">
+                <span>© ${new Date().getFullYear()} Wine & Spirits</span>
+                <span>18+ Продажа алкоголя только совершеннолетним</span>
+            </div>
+        </div>
+    </footer>
+    `;
+}
+
+
 
     // ====================== СОБЫТИЯ ======================
     private attachAuthNavigation() {
+        const basket = this.element.querySelector("#cartBtn");
+        const profile = this.element.querySelector(".profile-btn");
         const login = this.element.querySelector(".login-btn");
         const register = this.element.querySelector(".register-btn");
+        const goProfile = this.element.querySelector("#goProfile");
+        const goCheckout = this.element.querySelector("#goCheckout");
 
         login?.addEventListener("click", () => {
             router.navigate("/login");
@@ -1102,25 +1277,50 @@ h1, h2, h3, h4 {
         register?.addEventListener("click", () => {
             router.navigate("/register");
         });
+        basket?.addEventListener("click", () => {
+            router.navigate("/checkout");
+        });
+        profile?.addEventListener("click", () => {
+            if (!this.state.isLoggedIn) {
+                router.navigate("/login");
+            }
+        });
+        goProfile?.addEventListener("click", (event) => {
+            event.preventDefault();
+            router.navigate("/profile");
+        });
+        goCheckout?.addEventListener("click", (event) => {
+            event.preventDefault();
+            router.navigate("/checkout");
+        });
+
     }
 
     private attachSearchEvents() {
         const toggle = this.element.querySelector("#searchToggle");
         const close = this.element.querySelector("#closeSearch");
         const overlay = this.element.querySelector("#searchOverlay");
+        const input = this.element.querySelector("#searchInput") as HTMLInputElement | null;
 
         toggle?.addEventListener("click", () => {
-            this.setState({ isSearchOpen: !this.state.isSearchOpen });
+            const isOpen = overlay?.classList.toggle("active");
+            if (isOpen && input) {
+                input.focus();
+                this.scrollToCatalog();
+            }
         });
 
         close?.addEventListener("click", () => {
-            this.setState({ isSearchOpen: false });
+            overlay?.classList.remove("active");
         });
 
         overlay?.addEventListener("click", (e) => {
-            if (e.target === overlay) this.setState({ isSearchOpen: false });
+            if (e.target === overlay) {
+                overlay.classList.remove("active");
+            }
         });
     }
+
 
     private attachProfileEvents() {
         const btn = this.element.querySelector("#profileBtn");
@@ -1130,39 +1330,65 @@ h1, h2, h3, h4 {
         btn?.addEventListener("click", (e) => {
             e.stopPropagation();
             if (!this.state.isLoggedIn) return;
-            this.setState({ isProfileOpen: !this.state.isProfileOpen });
-            dropdown?.classList.toggle("active", this.state.isProfileOpen);
+            dropdown?.classList.toggle("active");
         });
 
-        logout?.addEventListener("click", () => {
-            localStorage.removeItem("isLoggedIn");
-            window.location.reload();
-        });
+        logout?.addEventListener("click", async (event) => {
+            event.preventDefault();
 
-        document.addEventListener("click", (e) => {
-            if (!dropdown) return;
-            if (!dropdown.contains(e.target as Node) && !btn?.contains(e.target as Node)) {
-                dropdown.classList.remove("active");
-                this.state.isProfileOpen = false;
+            try {
+                await UserService.logout();
+            } catch (error) {
+                console.error("Logout failed", error);
             }
+
+            this.setState({
+                currentUser: null,
+                isLoggedIn: false
+            });
+
+            router.navigate("/");
         });
     }
 
+    private attachOutsideClickHandler(): void {
+        if (this.isDocumentClickBound) return;
+
+        document.addEventListener("click", this.handleDocumentClick);
+        this.isDocumentClickBound = true;
+    }
+
+    private handleDocumentClick = (e: MouseEvent): void => {
+        const dropdown = this.element.querySelector("#profileDropdown");
+        const btn = this.element.querySelector("#profileBtn");
+
+        if (!dropdown) return;
+
+        if (!dropdown.contains(e.target as Node) && !btn?.contains(e.target as Node)) {
+            dropdown.classList.remove("active");
+        }
+    }
+
     private attachFilters() {
-        this.element.querySelectorAll(".filter-btn").forEach(btn => {
-            btn.addEventListener("click", async () => {
-                this.element.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        this.element.querySelectorAll("[data-filter]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                this.element.querySelectorAll("[data-filter]").forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
 
-                const filter = btn.getAttribute("data-filter") || "all";
-
-                let products = await ProductService.getAll();
-                if (filter !== "all") {
-                    products = products.filter(p => p.categoryName === filter);
-                }
-
-                this.updateCatalog(products);
+                this.activeFilter = btn.getAttribute("data-filter") || "all";
+                this.refreshCatalog();
             });
+        });
+    }
+
+    private attachAvailabilitySelect(): void {
+        const select = this.element.querySelector("#availabilitySelect") as HTMLSelectElement | null;
+        if (!select) return;
+
+        select.value = this.activeAvailability;
+        select.addEventListener("change", () => {
+            this.activeAvailability = select.value;
+            this.refreshCatalog();
         });
     }
 
@@ -1170,25 +1396,10 @@ h1, h2, h3, h4 {
         const select = this.element.querySelector("#sortSelect") as HTMLSelectElement | null;
         if (!select) return;
 
+        select.value = this.activeSort;
         select.addEventListener("change", () => {
-            let products = [...this.state.products];
-
-            switch (select.value) {
-                case "price-asc":
-                    products.sort((a, b) => a.price - b.price);
-                    break;
-                case "price-desc":
-                    products.sort((a, b) => b.price - a.price);
-                    break;
-                case "name":
-                    products.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case "rating":
-                    products.sort((a, b) => b.rating - a.rating);
-                    break;
-            }
-
-            this.updateCatalog(products);
+            this.activeSort = select.value;
+            this.refreshCatalog();
         });
     }
 
@@ -1196,27 +1407,107 @@ h1, h2, h3, h4 {
         const input = this.element.querySelector("#searchInput") as HTMLInputElement | null;
         if (!input) return;
 
+        input.value = this.searchQuery;
         input.addEventListener("input", () => {
-            const q = input.value.toLowerCase();
+            if (this.searchDebounceTimer) {
+                clearTimeout(this.searchDebounceTimer);
+            }
 
-            const filtered = this.state.products.filter(p =>
-                p.name.toLowerCase().includes(q) ||
-                p.categoryName.toLowerCase().includes(q) ||
-                p.country.toLowerCase().includes(q)
-            );
-
-            this.updateCatalog(filtered);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.searchQuery = input.value;
+                this.refreshCatalog();
+                if (this.searchQuery.trim()) {
+                    this.scrollToCatalog();
+                }
+            }, 180);
         });
     }
 
-    private attachCartButton() {
-        const cartBtn = this.element.querySelector("#cartBtn");
-        cartBtn?.addEventListener("click", () => {
-            if (!this.state.isLoggedIn) {
-                window.location.href = "/auth";
+
+private attachAddToCartHandlers() {
+    const grid = this.element.querySelector(".products-grid");
+    if (!(grid instanceof HTMLElement)) return;
+    if (grid.dataset.cartHandlersBound === "true") return;
+
+    grid.dataset.cartHandlersBound = "true";
+    grid.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        const button = target.closest(".add-to-cart-btn");
+        if (!button) return;
+
+        void this.handleAddToCart(button);
+    });
+}
+
+private async handleAddToCart(btn: Element): Promise<void> {
+            const id = Number(btn.getAttribute("data-id"));
+            const product = this.state.products.find(p => p.id === id);
+
+            if (!product) return;
+            if (!product.inStock) {
+                alert("Товар временно отсутствует");
                 return;
             }
-            window.location.href = "/cart";
+
+            if (!this.state.currentUser) {
+                router.navigate("/register");
+                return;
+            }
+
+            await this.addToCart(product);
+}
+
+
+private async addToCart(product: Product): Promise<void> {
+    const currentUser = this.state.currentUser;
+    if (!currentUser) {
+        return;
+    }
+
+    const cart = [...currentUser.cart];
+
+    const existing = cart.find((item: CartItem) => item.id === product.id);
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            image: product.image,
+            categoryName: product.categoryName,
+            price: product.price,
+            quantity: 1
         });
     }
+
+    try {
+        await UserService.update(currentUser.id, { cart });
+        const nextUser = new User({
+            ...currentUser,
+            cart
+        });
+
+        this.setState({
+            currentUser: nextUser,
+            isLoggedIn: true
+        });
+        this.updateCartBadge();
+    } catch (error) {
+        console.error("Failed to update cart", error);
+        alert("Не удалось обновить корзину");
+    }
+}
+private updateCartBadge() {
+    const badge = this.element.querySelector(".cart-badge");
+    if (!badge) return;
+
+    const count = this.getCartCount();
+
+    badge.textContent = count.toString();
+}
+
+private getCartCount(): number {
+    return (this.state.currentUser?.cart ?? []).reduce((sum, item) => sum + item.quantity, 0);
+}
 }
