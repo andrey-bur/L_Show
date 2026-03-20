@@ -1,0 +1,76 @@
+[
+  {
+    "id": 1,
+    "name": "Ivan Petrov",
+    "email": "ivan@mail.com",
+    "login": "ivan",
+    "phone": "+375291234567",
+    "password": "123456",
+    "cart": [],
+    "deliveries": [
+      {
+        "id": 1774038392529,
+        "createdAt": "2026-03-20T20:26:32.529Z",
+        "status": "Оформлен",
+        "address": "Минск, ул. Колесникова, 3",
+        "itemsCount": 5,
+        "total": 105500
+      },
+      {
+        "id": 1774035334079,
+        "createdAt": "2026-03-20T19:35:34.079Z",
+        "status": "Оформлен",
+        "address": "Минск, ул. Колесникова, 3",
+        "itemsCount": 4,
+        "total": 12800
+      },
+      {
+        "id": 1001,
+        "createdAt": "2026-03-19T10:00:00.000Z",
+        "status": "В пути",
+        "address": "Минск, ул. Колесникова, 3",
+        "itemsCount": 2,
+        "total": 6400
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Anna Smirnova",
+    "email": "anna@mail.com",
+    "login": "anna",
+    "phone": "+375291234568",
+    "password": "password",
+    "cart": [],
+    "deliveries": []
+  },
+  {
+    "id": 3,
+    "name": "Admin",
+    "email": "admin@shop.com",
+    "login": "admin",
+    "phone": "+375291234569",
+    "password": "admin123",
+    "cart": [],
+    "deliveries": []
+  },
+  {
+    "id": 4,
+    "name": "andrey",
+    "email": "dsds@gmail.com",
+    "login": "dsfsfs",
+    "phone": "+375299824726",
+    "password": "1234565432",
+    "cart": [],
+    "deliveries": [
+      {
+        "id": 1774036536673,
+        "createdAt": "2026-03-20T19:55:36.673Z",
+        "status": "Оформлен",
+        "address": "Минск, ул. Колесникова, 3",
+        "itemsCount": 1,
+        "total": 32000
+      }
+    ]
+  }
+]
