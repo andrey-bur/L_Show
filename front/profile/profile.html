@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Личный кабинет</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="profile-styles.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<main class="profile-main">
+
+<div class="container">
+
+<a href="index.html" class="back-btn">
+<i class="fas fa-arrow-left"></i>
+Вернуться в магазин
+</a>
+
+<div class="profile-layout">
+
+<div class="profile-card">
+
+<div class="profile-avatar">
+<i class="fas fa-user"></i>
+</div>
+
+<h2 id="profileName">Иван Иванов</h2>
+
+<p id="profileEmail">ivan@example.com</p>
+
+<button class="edit-btn" onclick="openModal()">
+<i class="fas fa-user-edit"></i>
+Изменить данные
+</button>
+
+</div>
+
+<div class="profile-info">
+
+<h2 class="section-title">Информация о пользователе</h2>
+
+<div class="info-grid">
+
+<div class="info-item">
+<span>Имя</span>
+<p id="infoName">Иван</p>
+</div>
+
+<div class="info-item">
+<span>Фамилия</span>
+<p id="infoSurname">Иванов</p>
+</div>
+
+<div class="info-item">
+<span>Email</span>
+<p id="infoEmail">ivan@example.com</p>
+</div>
+
+<div class="info-item">
+<span>Телефон</span>
+<p id="infoPhone">+375 (44) 549-85-65</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+
+<div class="modal" id="editModal">
+
+<div class="modal-content">
+
+<div class="modal-header">
+
+<h3>Редактировать профиль</h3>
+
+<button class="close-btn" onclick="closeModal()">
+<i class="fas fa-times"></i>
+</button>
+
+</div>
+
+<form id="editForm">
+
+<div class="form-group">
+<label>Имя</label>
+<input type="text" id="editName" value="Иван">
+</div>
+
+<div class="form-group">
+<label>Фамилия</label>
+<input type="text" id="editSurname" value="Иванов">
+</div>
+
+<div class="form-group">
+<label>Email</label>
+<input type="email" id="editEmail" value="ivan@example.com">
+</div>
+
+<div class="form-group">
+<label>Телефон</label>
+<input type="tel" id="editPhone" value="+375 (44) 549-85-65">
+</div>
+
+<div class="form-group">
+<label>Старый пароль (обязательно)</label>
+<input type="password" id="oldPassword" required>
+</div>
+
+<button type="button" class="change-pass-btn" onclick="togglePassword()">
+Изменить пароль
+</button>
+
+<div id="passwordFields">
+
+<div class="form-group">
+<label>Новый пароль</label>
+<input type="password" id="newPassword">
+</div>
+
+<div class="form-group">
+<label>Подтвердите пароль</label>
+<input type="password" id="confirmPassword">
+</div>
+
+</div>
+
+<button class="save-btn">
+Сохранить
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<script src="profile-script.js"></script>
+
+</body>
+</html>
