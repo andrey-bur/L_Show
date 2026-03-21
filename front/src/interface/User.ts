@@ -19,6 +19,17 @@ export interface Delivery {
   total: number;
 }
 
+export interface UserDTO {
+  id: number;
+  name: string;
+  email: string;
+  login: string;
+  phone: string;
+  password: string;
+  cart: CartItem[];
+  deliveries: Delivery[];
+}
+
 export class User {
   id: number;
   name: string;
@@ -29,7 +40,7 @@ export class User {
   cart: CartItem[];
   deliveries: Delivery[];
 
-  constructor(data: User) {
+  constructor(data: UserDTO) {
     this.id = data.id;
     this.name = data.name;
     this.email = data.email;

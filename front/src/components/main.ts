@@ -917,17 +917,17 @@ h1, h2, h3, h4 {
                 </ul>
 
                 <div class="header-actions">
-                    <button class="search-btn" id="searchToggle">
+                    <button class="search-btn ui-btn ui-btn--secondary ui-btn--icon" id="searchToggle">
                         <i class="fas fa-search"></i>
                     </button>
 
                     ${!this.state.isLoggedIn ? `
-                        <button class="login-btn" id="loginBtn">Войти</button>
-                        <button class="register-btn" id="registerBtn">Регистрация</button>
+                        <button class="login-btn ui-btn ui-btn--secondary" id="loginBtn">Войти</button>
+                        <button class="register-btn ui-btn ui-btn--primary" id="registerBtn">Регистрация</button>
                     ` : ""}     
 
                     <div class="profile-wrapper">
-                        <button class="profile-btn" id="profileBtn">
+                        <button class="profile-btn ui-btn ui-btn--secondary ui-btn--icon" id="profileBtn">
                             <i class="fas fa-user"></i>
                         </button>
 
@@ -952,7 +952,7 @@ h1, h2, h3, h4 {
                     </div>
 
                     ${this.state.isLoggedIn ? `
-                    <button class="cart-btn" id="cartBtn">
+                    <button class="cart-btn ui-btn ui-btn--secondary ui-btn--icon" id="cartBtn">
                     <i class="fas fa-shopping-bag"></i>
                         <span class="cart-badge">${cartCount}</span> 
                     </button>
@@ -971,7 +971,7 @@ h1, h2, h3, h4 {
         <div class="search-overlay" id="searchOverlay">
             <div class="search-container">
                 <input type="text" placeholder="Поиск по стране названию категории" id="searchInput">
-                <button class="close-search" id="closeSearch"><i class="fas fa-times"></i></button>
+                <button class="close-search ui-btn ui-btn--secondary ui-btn--icon" id="closeSearch"><i class="fas fa-times"></i></button>
             </div>
         </div>
     `;
@@ -1003,12 +1003,12 @@ h1, h2, h3, h4 {
 
                 <div class="controls-bar">
                     <div class="filters">
-                        <button class="filter-btn active" data-filter="all">Все</button>
-                        <button class="filter-btn" data-filter="Вино">Вино</button>
-                        <button class="filter-btn" data-filter="Виски">Виски</button>
-                        <button class="filter-btn" data-filter="Водка">Водка</button>
-                        <button class="filter-btn" data-filter="Коньяк">Коньяк</button>
-                        <button class="filter-btn" data-filter="Шампанское">Шампанское</button>
+                        <button class="filter-btn ui-btn ui-btn--secondary active" data-filter="all">Все</button>
+                        <button class="filter-btn ui-btn ui-btn--secondary" data-filter="Вино">Вино</button>
+                        <button class="filter-btn ui-btn ui-btn--secondary" data-filter="Виски">Виски</button>
+                        <button class="filter-btn ui-btn ui-btn--secondary" data-filter="Водка">Водка</button>
+                        <button class="filter-btn ui-btn ui-btn--secondary" data-filter="Коньяк">Коньяк</button>
+                        <button class="filter-btn ui-btn ui-btn--secondary" data-filter="Шампанское">Шампанское</button>
                     </div>
 
                     <select class="sort-select" id="availabilitySelect">
@@ -1052,7 +1052,7 @@ h1, h2, h3, h4 {
                     </div>
                     <div class="product-footer">
                         <span class="product-price" data-price>${p.price.toLocaleString()} ₽</span>
-                        <button class="add-to-cart-btn" data-id="${p.id}" ${p.inStock ? "" : "disabled"}>
+                        <button class="add-to-cart-btn ui-btn ui-btn--primary" data-id="${p.id}" ${p.inStock ? "" : "disabled"}>
                             <i class="fas fa-shopping-bag"></i>
                             <span>${p.inStock ? "В корзину" : "Недоступно"}</span>
                         </button>

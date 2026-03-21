@@ -1,3 +1,17 @@
+export interface ProductDTO {
+  id: number;
+  name: string;
+  description: string;
+  categoryName: string;
+  price: number;
+  rating: number;
+  volume: string;
+  country: string;
+  image: string;
+  inStock: boolean;
+  popular: boolean;
+}
+
 export class Product {
   id: number;
   name: string;
@@ -12,7 +26,7 @@ export class Product {
   popular: boolean;
   
 
-  constructor(data: Product) {
+  constructor(data: ProductDTO) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;

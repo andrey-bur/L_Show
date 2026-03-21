@@ -6,7 +6,16 @@
     "login": "ivan",
     "phone": "+375291234567",
     "password": "123456",
-    "cart": [],
+    "cart": [
+      {
+        "id": 2,
+        "name": "Macallan 18 Years",
+        "image": "Macallan.jfif",
+        "categoryName": "Виски",
+        "price": 32000,
+        "quantity": 2
+      }
+    ],
     "deliveries": [
       {
         "id": 1774043707839,
@@ -81,6 +90,53 @@
         "address": "Минск, ул. Колесникова, 3",
         "itemsCount": 1,
         "total": 32000
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "andreyhh",
+    "email": "iva6ft@mail.com",
+    "login": "jniuiuhui",
+    "phone": "+375297654567",
+    "password": "http://localhost:5173/",
+    "cart": [
+      {
+        "id": 1,
+        "name": "Château Margaux 2015",
+        "image": "ChâteauMargaux.jfif",
+        "categoryName": "Вино",
+        "price": 45000,
+        "quantity": 100
+      },
+      {
+        "id": 3,
+        "name": "Beluga Gold Line",
+        "image": "BelugaGoldLine.jfif",
+        "categoryName": "Водка",
+        "price": 8500,
+        "quantity": 100
+      },
+      {
+        "id": 8,
+        "name": "Krug Grande Cuvée",
+        "image": "KrugGrandeCuvée.jfif",
+        "categoryName": "Шампанское",
+        "price": 55000,
+        "quantity": 100
+      }
+    ],
+    "deliveries": [
+      {
+        "id": 1774066919064,
+        "createdAt": "2026-03-21T04:21:59.064Z",
+        "status": "Оформлен",
+        "address": "Минск, ул. Колесникова, 3",
+        "phone": "+375297654567",
+        "email": "iva6ft@mail.com",
+        "paymentMethod": "card",
+        "itemsCount": 9,
+        "total": 233000
       }
     ]
   }

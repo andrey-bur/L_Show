@@ -7,6 +7,9 @@ import { Checkout } from "../../components/Checkout";
 
 export const router = new Router("app-root");
 
+/**
+ * Registers routes and starts SPA router.
+ */
 export const initApp = () => {
     router
         .addRoute("/", Main)

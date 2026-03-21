@@ -114,7 +114,7 @@ export class RegisterComponent extends Component<RegisterState> {
                             <input id="reg-password" name="password" type="password" placeholder="••••••••" minlength="4" required>
                         </div>
                         ${this.state.error ? `<div class="auth-error">${this.state.error}</div>` : ""}
-                        <button type="submit" class="submit-btn" ${this.state.isSubmitting ? "disabled" : ""}>
+                        <button type="submit" class="submit-btn ui-btn ui-btn--accent ui-btn--full" ${this.state.isSubmitting ? "disabled" : ""}>
                             ${this.state.isSubmitting ? "Создаём..." : "Создать профиль"}
                         </button>
             `,

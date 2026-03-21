@@ -32,11 +32,21 @@ export class Router {
         });
     }
 
+    /**
+     * Registers route -> component mapping.
+     * @param path Route pathname.
+     * @param component Component constructor.
+     * @returns Router instance for chaining.
+     */
     public addRoute(path: string, component: ComponentConstructor): this {
         this.routes.set(path, component);
         return this;
     }
 
+    /**
+     * Navigates app to target path.
+     * @param path Absolute internal route.
+     */
     public navigate(path: string): void {
         const targetUrl = new URL(path, window.location.origin);
         const nextPathname = targetUrl.pathname;
@@ -89,6 +99,9 @@ export class Router {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+    /**
+     * Starts router and renders initial route.
+     */
     public start(): void {
         if (document.readyState === "complete" || document.readyState === "interactive") {
             this.handleRoute();

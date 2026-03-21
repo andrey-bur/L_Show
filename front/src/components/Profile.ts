@@ -109,7 +109,7 @@ export class Profile extends Component<ProfileState> {
 
         return `
             <div class="container">
-                <button class="back-btn" id="goHome" type="button">
+                <button class="back-btn ui-btn ui-btn--secondary" id="goHome" type="button">
                     <i class="fas fa-home"></i> Вернуться в магазин
                 </button>
 
@@ -118,7 +118,7 @@ export class Profile extends Component<ProfileState> {
                         <div class="profile-avatar"><i class="fas fa-user"></i></div>
                         <h2>${safeUser.name || "Пользователь"}</h2>
                         <p>${safeUser.email || "Email не указан"}</p>
-                        <button class="edit-btn" id="openEditModal" type="button">
+                        <button class="edit-btn ui-btn ui-btn--primary" id="openEditModal" type="button">
                             <i class="fas fa-user-edit"></i> Изменить данные
                         </button>
                     </div>
@@ -151,7 +151,7 @@ export class Profile extends Component<ProfileState> {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Редактировать профиль</h3>
-                        <button class="close-btn" id="closeModal" type="button">
+                        <button class="close-btn ui-btn ui-btn--secondary ui-btn--icon" id="closeModal" type="button">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -182,7 +182,7 @@ export class Profile extends Component<ProfileState> {
                             <input id="profile-old-password" type="password" name="oldPassword" minlength="4" required>
                         </div>
 
-                        <button type="button" class="change-pass-btn" id="togglePassword">
+                        <button type="button" class="change-pass-btn ui-btn ui-btn--secondary" id="togglePassword">
                             ${isPasswordFieldsOpen ? "Не менять пароль" : "Изменить пароль"}
                         </button>
 
@@ -198,7 +198,7 @@ export class Profile extends Component<ProfileState> {
                             </div>
                         </div>
 
-                        <button type="submit" class="save-btn" ${isSaving ? "disabled" : ""}>
+                        <button type="submit" class="save-btn ui-btn ui-btn--primary ui-btn--full" ${isSaving ? "disabled" : ""}>
                             ${isSaving ? "Сохранение..." : "Сохранить"}
                         </button>
                     </form>
@@ -300,13 +300,7 @@ export class Profile extends Component<ProfileState> {
                 requestPayload.password = newPassword;
             }
 
-            await UserService.update(this.state.user.id, requestPayload);
-
-            const freshUser = await UserService.getCurrent();
-            const nextUser = freshUser ?? new User({
-                ...this.state.user,
-                ...updatePayload
-            });
+            const nextUser = await UserService.update(this.state.user.id, requestPayload);
 
             this.setState({
                 user: nextUser,

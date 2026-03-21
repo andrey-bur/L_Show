@@ -48,7 +48,7 @@ export class AuthComponent extends Component<AuthState> {
                             <input id="password" name="password" type="password" placeholder="••••••••" required>
                         </div>
                         ${this.state.error ? `<div class="auth-error">${this.state.error}</div>` : ""}
-                        <button type="submit" class="submit-btn" ${this.state.isSubmitting ? "disabled" : ""}>
+                        <button type="submit" class="submit-btn ui-btn ui-btn--accent ui-btn--full" ${this.state.isSubmitting ? "disabled" : ""}>
                             ${this.state.isSubmitting ? "Входим..." : "Войти в личный кабинет"}
                         </button>
             `,

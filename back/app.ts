@@ -1,10 +1,11 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import swaggerUi from "swagger-ui-express"
 import productsRouter from "./src/router/product/product"
 import userRouter from "./src/router/user/user"
-import basketRouter from "./src/router/basket/basket"
 import { errorHandler, notFoundHandler } from "./src/constants/middleware"
+import { openApiSpec } from "./src/docs/openapi"
 
 const app = express()
 app.use(express.json())
@@ -16,8 +17,11 @@ app.use(cors({
 
 
 app.use("/product", productsRouter)
-app.use("/basket", basketRouter)
 app.use("/users", userRouter)
+app.get("/docs.json", (_req, res) => {
+  res.json(openApiSpec)
+})
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec))
 app.use(notFoundHandler)
 app.use(errorHandler)
 

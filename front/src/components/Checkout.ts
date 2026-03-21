@@ -58,7 +58,7 @@ export class Checkout extends Component<CheckoutState> {
         <main class="checkout">
             <div class="container checkout-grid">
                 <section class="checkout-top">
-                    <button class="back-btn" id="goBackToShop" type="button">
+                    <button class="back-btn ui-btn ui-btn--secondary" id="goBackToShop" type="button">
                         <i class="fas fa-arrow-left"></i> Вернуться в магазин
                     </button>
                 </section>
@@ -131,9 +131,9 @@ export class Checkout extends Component<CheckoutState> {
                     </div>
 
                     <div class="qty-controls">
-                        <button class="qty-btn" data-id="${item.id}" data-action="minus">-</button>
+                        <button class="qty-btn ui-btn ui-btn--secondary ui-btn--icon" data-id="${item.id}" data-action="minus">-</button>
                         <span>${item.quantity}</span>
-                        <button class="qty-btn" data-id="${item.id}" data-action="plus">+</button>
+                        <button class="qty-btn ui-btn ui-btn--secondary ui-btn--icon" data-id="${item.id}" data-action="plus">+</button>
                     </div>
 
                     <div class="remove-btn" data-id="${item.id}">Удалить</div>
@@ -164,7 +164,7 @@ export class Checkout extends Component<CheckoutState> {
                         <option value="cash">Наличными курьеру</option>
                     </select>
                 </div>
-                <button class="checkout-submit" id="checkoutSubmit" type="submit" ${this.state.items.length === 0 ? "disabled" : ""}>
+                <button class="checkout-submit ui-btn ui-btn--primary ui-btn--full" id="checkoutSubmit" type="submit" ${this.state.items.length === 0 ? "disabled" : ""}>
                     Подтвердить заказ
                 </button>
             </form>
@@ -341,12 +341,7 @@ export class Checkout extends Component<CheckoutState> {
         }
 
         try {
-            await UserService.update(user.id, data);
-
-            const nextUser = new User({
-                ...user,
-                ...data
-            });
+            const nextUser = await UserService.update(user.id, data);
 
             this.setState({
                 user: nextUser,

@@ -19,6 +19,11 @@ type AuthPageRenderOptions = {
     footerActionText: string;
 };
 
+/**
+ * Builds reusable auth page CSS with configurable layout.
+ * @param options Style options for a specific auth page variant.
+ * @returns CSS text.
+ */
 export function buildAuthPageStyles(options: AuthPageStylesOptions): string {
     return `
         .auth-page-wrapper {
@@ -221,6 +226,11 @@ ${options.extraCss ?? ""}
     `;
 }
 
+/**
+ * Renders auth page layout with dynamic title, content and footer action.
+ * @param options Render options.
+ * @returns HTML string.
+ */
 export function renderAuthPage(options: AuthPageRenderOptions): string {
     return `
             <div class="auth-container">
@@ -250,6 +260,12 @@ export function renderAuthPage(options: AuthPageRenderOptions): string {
         `;
 }
 
+/**
+ * Binds common auth-page navigation events.
+ * @param root Root auth page element.
+ * @param footerActionSelector Selector for footer CTA element.
+ * @param footerActionPath Route to navigate on footer CTA click.
+ */
 export function bindAuthPageNavigation(
     root: HTMLElement,
     footerActionSelector: string,

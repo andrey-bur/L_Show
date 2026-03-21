@@ -1,6 +1,4 @@
 import crypto from "crypto"
-
-import { createBasket } from "../basket/basket.controller"
 import { addItem, readData, replaceItems, updateItem } from "../../servires/database.servires"
 import { Session } from "../../../types/Session"
 import { Delivery, User } from "../../../types/User"
@@ -47,6 +45,11 @@ export type RegisterResult = SuccessResult<{ user: User; session: Session }> | E
 export type AuthorizedUserResult = SuccessResult<User> | ErrorResult
 export type UpdateUserResult = SuccessResult<User> | ErrorResult
 
+/**
+ * Normalizes incoming registration data to internal `User` shape.
+ * @param user Raw user data with generated id.
+ * @returns Normalized user object.
+ */
 function normalizeUser(user: RegisterUserData & { id: number }): User {
   return {
     id: user.id,
@@ -60,25 +63,50 @@ function normalizeUser(user: RegisterUserData & { id: number }): User {
   }
 }
 
+/**
+ * Creates a standardized error result.
+ * @param message User-facing error text.
+ * @param status Error status code identifier.
+ * @returns Error result object.
+ */
 function getErrorResult(message: string, status: ErrorResult["status"]): ErrorResult {
   return { status, message }
 }
 
+/**
+ * Returns all users from storage.
+ * @returns Collection of users.
+ */
 export async function getAllUsers(): Promise<User[]> {
   return readData<User>(usersFile)
 }
 
+/**
+ * Finds a user by id.
+ * @param id User identifier.
+ * @returns User or null when not found.
+ */
 export async function getUserById(id: number): Promise<User | null> {
   const users = await getAllUsers()
   return users.find(user => user.id === id) ?? null
 }
 
+/**
+ * Calculates the next available user id.
+ * @returns Numeric id for a new user.
+ */
 export async function getNextUserId(): Promise<number> {
   const users = await getAllUsers()
   const maxId = users.reduce((currentMax, user) => Math.max(currentMax, user.id), 0)
   return maxId + 1
 }
 
+/**
+ * Finds user by one of identity fields and password.
+ * @param identifier Name, email, login or phone.
+ * @param password User password.
+ * @returns Matching user or null.
+ */
 export async function findUser(identifier: string, password: string): Promise<User | null> {
   const users = await getAllUsers()
   const normalizedIdentifier = identifier.trim().toLowerCase()
@@ -90,6 +118,13 @@ export async function findUser(identifier: string, password: string): Promise<Us
   ) ?? null
 }
 
+/**
+ * Finds user by unique fields used during registration/profile update.
+ * @param email User email.
+ * @param login User login.
+ * @param phone User phone.
+ * @returns Duplicate user or null.
+ */
 export async function findUserByUniqueFields(email: string, login: string, phone: string): Promise<User | null> {
   const users = await getAllUsers()
 
@@ -100,6 +135,11 @@ export async function findUserByUniqueFields(email: string, login: string, phone
   ) ?? null
 }
 
+/**
+ * Creates and persists a new user.
+ * @param userData Registration payload with required fields.
+ * @returns Created user.
+ */
 export async function createUser(userData: RegisterUserData): Promise<User> {
   const user = normalizeUser({
     ...userData,
@@ -111,6 +151,12 @@ export async function createUser(userData: RegisterUserData): Promise<User> {
   return user
 }
 
+/**
+ * Updates user by id.
+ * @param id User identifier.
+ * @param data Partial user data.
+ * @returns Updated user or null.
+ */
 export async function updateUser(id: number, data: Partial<User>): Promise<User | null> {
   return updateItem<User>(usersFile, id, data)
 }
@@ -217,7 +263,6 @@ export async function registerUser(data: RegisterData): Promise<RegisterResult> 
     deliveries: Array.isArray(data.deliveries) ? data.deliveries : []
   })
 
-  await createBasket(user.id)
 
   const session = await createSession(user.id)
 
